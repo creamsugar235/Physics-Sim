@@ -15,20 +15,6 @@ namespace physics
 	};
 	sf::View camera;
 
-	std::ostream& operator<<(std::ostream& os, const Object& o)
-	{
-		std::string s = "";
-		std::string space;
-		space = " ";
-		for (geometry::Point p: o.ReturnPoints())
-		{
-			std::cout<<"P: "<<p.ToString()<<std::endl;
-			std::cout<<"WHAT"<<p.x<<" "<<p.y<<std::endl;
-			s = std::string(s + space + p.ToString());
-		}
-		return os << s;
-	}
-
 	void Update()
 	{
 		world.Update();
@@ -55,11 +41,6 @@ namespace physics
 			}
 			Update();
 			Display();
-			for (auto& o: world.objects)
-			{
-				std::cout<<o<<"\n";
-			}
-			std::cout.flush();
 		}
 	}
 
@@ -70,11 +51,7 @@ namespace physics
 		{
 			if (IsInView(o))
 			{
-				sf::Sprite s = sf::Sprite(*o->texture);
-				s.setPosition(sf::Vector2f(o->GetPos().x, o->GetPos().y));
-				s.setScale(sf::Vector2f(o->GetScale().x, o->GetScale().y));
-				s.rotate(geometry::Calc::Degrees(o->GetTransform().rotation));
-				mainWindow.draw(s);
+				mainWindow.draw(o->sprite);
 			}
 			if (o->children.size())
 			{
@@ -93,12 +70,11 @@ namespace physics
 
 	void Load()
 	{
-		for (auto& iter: textures)
+		for (auto& iter: texturePaths)
 		{
-			if (!iter.second.loadFromFile(iter.first))
-			{
+			textures[iter.first] = sf::Texture();
+			if (!textures[iter.first].loadFromFile(iter.second))
 				exit(1);
-			}
 		}
 	}
 
@@ -120,7 +96,7 @@ namespace physics
 			int scale = rand() % 100;
 			std::vector<geometry::Point> p;
 			p.push_back(geometry::Point(scale, 0));
-			world.AddObject(Object("circlee", &textures["circlee"], rand() % 50, rand() % 50, p, true));
+			world.AddObject(Object("circlee", sf::Sprite(textures["circle"]), rand() % 50, rand() % 50, p, true));
 			world.objects[world.objects.size() - 1]->SetScale(geometry::Point(scale, scale));
 		}
 	}

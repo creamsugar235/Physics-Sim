@@ -20,7 +20,7 @@ compilePhysics:
 	rm bin/o/*.o
 
 link:
-	g++ -lX11 -pthread -Wl,-rpath,bin -Wall -std=c++17 src/main.cpp -o bin/main lib/*.a -L lib -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
+	g++ -lX11 -pthread -Wl,-rpath,bin -Wall -std=c++17 src/main.cpp -o bin/main lib/physics.a lib/geometry.a -L lib -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
 
 run:
 	./bin/main

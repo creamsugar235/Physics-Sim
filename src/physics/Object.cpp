@@ -7,24 +7,26 @@ namespace physics
 	{
 	}
 
-	Object::Object(std::string name, sf::Texture* t, double x, double y, bool isCircle)
+	Object::Object(std::string name, sf::Sprite s, double x, double y, bool isCircle)
 	: geometry::Shape(x, y, isCircle)
 	{
 		_name = name;
-		texture = t;
+		sprite = s;
+		sprite.setPosition(x, y);
 	}
 
-	Object::Object(std::string name, sf::Texture* t, double x, double y, std::vector<geometry::Point> points, bool isCircle)
+	Object::Object(std::string name, sf::Sprite s, double x, double y, std::vector<geometry::Point> points, bool isCircle)
 	: geometry::Shape(x, y, points, isCircle)
 	{
 		_name = name;
-		texture = t;
+		sprite = s;
+		sprite.setPosition(x, y);
 	}
 
 	Object::Object(const Object& o) : geometry::Shape((geometry::Shape)o)
 	{
 		_name = o.GetName();
-		texture = o.texture;
+		sprite = o.sprite;
 	}
 
 	Object::~Object()
@@ -82,5 +84,6 @@ namespace physics
 	void Object::SetScale(const geometry::Point& p)
 	{
 		_scale = p;
+		sprite.setScale(p.x, p.y);
 	}
 }

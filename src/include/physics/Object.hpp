@@ -14,12 +14,12 @@ namespace physics
 			std::string _name;
 		public:
 			Object();
-			Object(std::string name, sf::Texture* t, double x, double y, bool isCircle=false);
-			Object(std::string name, sf::Texture* t, double x, double y, std::vector<geometry::Point> points, bool isCircle=false);
+			Object(std::string name, sf::Sprite s, double x, double y, bool isCircle=false);
+			Object(std::string name, sf::Sprite s, double x, double y, std::vector<geometry::Point> points, bool isCircle=false);
 			Object(const Object& o);
 			~Object();
 			bool operator==(const Object& other) const;
-			sf::Texture* texture = NULL;
+			sf::Sprite sprite;
 			std::vector<Object*> children;
 			void AddChild(const Object& o);
 			std::string GetName() const;

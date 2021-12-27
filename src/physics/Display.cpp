@@ -1,4 +1,5 @@
 #include "../include/physics/Display.hpp"
+#include "../include/physics/StopWatch.hpp"
 #include <functional>
 #include <iostream>
 #include <random>
@@ -40,7 +41,14 @@ namespace physics
 				}
 			}
 			Update();
+			StopWatch sw;
+			sw.Start();
+			CheckCollision();
+			sw.Stop();
+			std::cout<<"Duration: "<<sw.Duration()<<std::endl;
+			sw.Reset();
 			Display();
+			//std::cout<<Time::deltaTime<<std::endl;
 		}
 	}
 
@@ -91,17 +99,55 @@ namespace physics
 
 	void Start()
 	{
-		for (int i = 0; i < 40; i++)
+		srand(time(NULL));
+		for (int i = 0; i < 10; i++)
 		{
-			int scale = rand() % 100;
+			int scale = fmod(rand(), 2);
 			std::vector<geometry::Point> p;
 			p.push_back(geometry::Point(scale, 0));
-			world.AddObject(Object("circlee", sf::Sprite(textures["circle"]), rand() % 50, rand() % 50, p, true));
+			world.AddObject(Object("circlee", sf::Sprite(textures["circle"]), rand() % 500, rand() % 500, p, true));
 			world.objects[world.objects.size() - 1]->SetScale(geometry::Point(scale, scale));
 		}
 	}
 
-	void CheckCollision(){}
+	template <typename T>
+	bool In(std::vector<T> v, const T& val)
+	{
+		for (const auto& p: v)
+		{
+			if (p == val)
+				return true;
+		}
+		return false;
+	}
+
+	void CheckCollision()
+	{
+		for (auto& obj : world.objects)
+		{
+			for (auto& other: world.objects)
+			{
+				if (*obj != *other)
+				{
+					if (obj->IsOverlapping(*other))
+					{
+						if (In(obj->GetCollidedEntities(), other))
+						{
+							obj->OnCollisionStay(other);
+						}
+						else if (!In(obj->GetCollidedEntities(), other))
+						{
+							obj->OnCollisionEnter(other);
+						}
+					}
+					if (In(obj->GetCollidedEntities(), other) && !obj->IsOverlapping(*other))
+					{
+						obj->OnCollisionExit(other);
+					}					
+				}
+			}
+		}
+	}
 
 	void Time::Tick()
 	{

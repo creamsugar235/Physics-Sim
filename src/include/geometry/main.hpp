@@ -110,7 +110,8 @@ namespace geometry
 		protected:
 			std::vector<Point> _points;
 			std::vector<Line> _lines;
-			std::vector<Vector> _vectors;
+			double _radius;
+			Vector _vector;
 			Transform _t;
 			Point max;
 			bool _isCircle;
@@ -121,20 +122,24 @@ namespace geometry
 			Shape(double x, double y, std::vector<Point> points, bool isCircle=false);
 			~Shape();
 			int shapeType = 0;
-			Shape Clone();
 			void AddPoint(const Point& p);
-			bool IsCircle() const;
-			bool IsIn(const Point& p) const;
-			bool IsOverlapping(const Shape& s);
+			Shape Clone();
 			Point GetPos() const;
 			double GetRadius() const;
 			Transform GetTransform() const;
-			void SetPos(double x, double y);
-			void SetTransform(const Transform& t);
+			Vector GetVector() const;
+			bool IsCircle() const;
+			bool IsIn(const Point& p) const;
+			bool IsOverlapping(const Shape& s);
 			void Move(double offsetX, double offsetY);
 			std::vector<Point> ReturnPoints() const;
 			void Rotate(const Point& p, double angle);
+			bool RemovePoint(const Point& value);
 			void Scale(double xFactor, double yFactor);
+			void SetPos(double x, double y);
+			void SetRadius(double r);
+			void SetTransform(const Transform& t);
+			void SetVector(const Vector& v);
 			std::string ToString() const;
 
 	};

@@ -1,4 +1,5 @@
 #include "../include/geometry/main.hpp"
+#include <memory>
 
 namespace geometry
 {
@@ -6,6 +7,12 @@ namespace geometry
 	{
 		this->x = 0;
 		this->y = 0;
+	}
+
+	Point::Point(const Vector& v)
+	{
+		this->x = v.x;
+		this->y = v.y;
 	}
 
 	Point::Point(const Point& p)
@@ -27,6 +34,11 @@ namespace geometry
 	Point Point::Clone() const
 	{
 		return Point(this->x, this->y);
+	}
+
+	Point::operator Vector(void) const
+	{
+		return Vector(x, y, 0);
 	}
 
 	Point Point::operator*(const Point& p)

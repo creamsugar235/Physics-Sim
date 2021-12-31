@@ -1,45 +1,27 @@
-#pragma once
+ #pragma once
+#include <memory>
 #include "../geometry/main.hpp"
 #include "../SFML/Graphics.hpp"
 #include "Event.hpp"
 
 namespace physics
 {
-	class Object;
-
-	class Object : public geometry::Shape
+	struct Transform;
+	struct Object;
+	struct Collider;
+	struct Object
 	{
-		protected:
-			geometry::Point _scale;
-			std::string _name;
-			std::vector<Object*> collidedEntities;
-			bool isColliding = false;
-		public:
-			Object();
-			Object(std::string name, sf::Sprite s, double x, double y, bool isCircle=false);
-			Object(std::string name, sf::Sprite s, double x, double y, std::vector<geometry::Point> points, bool isCircle=false);
-			Object(const Object& o);
-			virtual ~Object();
-			virtual bool operator==(const Object& other) const noexcept;
-			virtual bool operator!=(const Object& other) const noexcept;
-			sf::Sprite sprite;
-			std::vector<Object*> children;
-			void AddChild(const Object& o);
-			std::string GetName() const noexcept;
-			geometry::Point GetScale() const noexcept;
-			long GetHash() const noexcept;
-			void SetName(const std::string& s);
-			void SetScale(const geometry::Point& p);
-			virtual void OnCollisionEnter(Object* o);
-			virtual void OnCollisionStay(Object* o);
-			virtual void OnCollisionExit(Object* o);
-			bool IsColliding() const noexcept;
-			std::vector<Object*> GetCollidedEntities() const noexcept;
-			virtual void Start();
-			virtual void Update();
-			virtual void Destroy();
-			Event<void(*)()> start;
-			Event<void(*)()> update;
-			Event<void(*)()> destroy;
+		float mass;
+		geometry::Vector velocity;
+		geometry::Vector force;
+		std::unique_ptr<Collider> collider = NULL;
+		std::unique_ptr<Transform> transform = NULL;
+	};
+
+	struct Transform
+	{
+		geometry::Point position;
+		geometry::Point scale;
+		geometry::Quaternion rotation;
 	};
 }

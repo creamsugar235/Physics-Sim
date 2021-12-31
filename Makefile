@@ -26,7 +26,8 @@ compilePhysics:
 	g++ -c -Wall -std=c++17 src/physics/StopWatch.cpp -o bin/o/StopWatch.o
 	g++ -c -Wall -std=c++17 src/physics/Display.cpp -o bin/o/Display.o
 	g++ -c -Wall -std=c++17 src/physics/World.cpp -o bin/o/World.o
-	ar rcs lib/physics.a bin/o/Object.o bin/o/StopWatch.o bin/o/Display.o bin/o/World.o 
+	g++ -c -Wall -std=c++17 src/physics/CollisionObj.cpp -o bin/o/CollisionObj.o
+	ar rcs lib/physics.a bin/o/Object.o bin/o/StopWatch.o bin/o/Display.o bin/o/World.o bin/o/CollisionObj.o
 	ranlib lib/physics.a
 	rm bin/o/*.o
 
@@ -35,7 +36,8 @@ debugCompilePhysics:
 	g++ -g -c -Wall -std=c++17 src/physics/StopWatch.cpp -o bin/o/StopWatch.o
 	g++ -g -c -Wall -std=c++17 src/physics/Display.cpp -o bin/o/Display.o
 	g++ -g -c -Wall -std=c++17 src/physics/World.cpp -o bin/o/World.o
-	ar rcs lib/physics.a bin/o/Object.o bin/o/StopWatch.o bin/o/Display.o bin/o/World.o 
+	g++ -g -c -Wall -std=c++17 src/physics/CollisionObj.cpp -o bin/o/CollisionObj.o
+	ar rcs lib/physics.a bin/o/Object.o bin/o/StopWatch.o bin/o/Display.o bin/o/World.o bin/o/CollisionObj.o
 	ranlib lib/physics.a
 	rm bin/o/*.o
 

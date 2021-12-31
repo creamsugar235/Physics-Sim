@@ -5,15 +5,16 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <map>
 namespace geometry
 {
 	class Calc;
 	class Line;
 	class Exception;
 	class Point;
-	class Shape;
+	class Point3D;
 	class Vector;
-	struct Transform;
+	struct Quaternion;
 
 	enum ShapeType
 	{
@@ -41,10 +42,12 @@ namespace geometry
 			double x = 0;
 			double y = 0;
 			Point();
+			Point(const Vector& v);
 			Point(const Point& p);
 			Point(double x, double y);
 			~Point();
 			Point Clone() const;
+			operator Vector() const;
 			Point operator*(const Point& p);
 			Point operator+(const Point& p);
 			Point operator-(const Point& p);
@@ -62,6 +65,32 @@ namespace geometry
 			void Rotate(const Point& p, double angle);
 			std::string ToString() const;
 			std::tuple<double, double> ToTuple() const;
+	};
+
+	class Point3D
+	{
+		public:
+			double x = 0;
+			double y = 0;
+			double z = 0;
+			Point3D();
+			Point3D(const Point3D& p);
+			Point3D(double x, double y, double z);
+			void Move(double offsetX, double offsetY, double offsetZ);
+	};
+
+	struct Quaternion
+	{
+		public:
+			double x;
+			double y;
+			double z;
+			double w;
+			Quaternion();
+			Quaternion(const Point3D& axis, double angle);
+			Quaternion(double x, double y, double z, double w);
+			Quaternion operator*(const Quaternion& other) const noexcept;
+			std::tuple<std::tuple<double, double, double>> ToRotationMatrix() const;
 	};
 
 	class Line
@@ -91,57 +120,33 @@ namespace geometry
 	class Vector
 	{
 		public:
-			Point start;
-			Point direction;
+			double x;
+			double y;
+			double angle;
+			double magnitude;
 			Vector();
-			Vector(Point start, Point direction);
-	};
-
-	struct Transform
-	{
-		public:
-			Point coords;
-			double rotation;
-			Vector vector;
-	};
-
-	class Shape
-	{
-		protected:
-			std::vector<Point> _points;
-			std::vector<Line> _lines;
-			double _radius;
-			Vector _vector;
-			Transform _t;
-			Point max;
-			bool _isCircle;
-		public:
-			Shape();
-			Shape(const Shape& s);
-			Shape(double x, double y, bool isCircle=false);
-			Shape(double x, double y, std::vector<Point> points, bool isCircle=false);
-			~Shape();
-			int shapeType = 0;
-			void AddPoint(const Point& p);
-			Shape Clone();
-			Point GetPos() const;
-			double GetRadius() const;
-			Transform GetTransform() const;
-			Vector GetVector() const;
-			bool IsCircle() const;
-			bool IsIn(const Point& p) const;
-			bool IsOverlapping(const Shape& s);
-			void Move(double offsetX, double offsetY);
-			std::vector<Point> ReturnPoints() const;
-			void Rotate(const Point& p, double angle);
-			bool RemovePoint(const Point& value);
-			void Scale(double xFactor, double yFactor);
-			void SetPos(double x, double y);
-			void SetRadius(double r);
-			void SetTransform(const Transform& t);
-			void SetVector(const Vector& v);
-			std::string ToString() const;
-
+			Vector(double x, double y, double magnitude);
+			Vector(Point p, double magnitude);
+			Vector operator-() const noexcept;
+			Vector operator+() const noexcept;
+			bool operator==(const Vector& v) const noexcept;
+			bool operator!=(const Vector& v) const noexcept;
+			Vector operator-(const Vector& v) const noexcept;
+			Vector operator-(const double& d) const noexcept;
+			void operator-=(const Vector& v) noexcept;
+			void operator-=(const double& d) noexcept;
+			Vector operator+(const Vector& v) const noexcept;
+			Vector operator+(const double& d) const noexcept;
+			void operator+=(const Vector& v) noexcept;
+			void operator+=(const double& d) noexcept;
+			Vector operator/(const Vector& v) const noexcept;
+			Vector operator/(const double& d) const noexcept;
+			void operator/=(const Vector& v) noexcept;
+			void operator/=(const double& d) noexcept;
+			Vector operator*(const Vector& v) const noexcept;
+			Vector operator*(const double& d) const noexcept;
+			void operator*=(const Vector& v) noexcept;
+			void operator*=(const double& d) noexcept;
 	};
 	
 	class Calc
@@ -157,8 +162,10 @@ namespace geometry
 			static double GetSlope(const Point& a, const Point& b);
 			static bool Intersecting(const Line& a, const Line& b, bool isInfLine = false);
 			static Point PointOfIntersect(const Line& a, const Line& b, bool isInfLine = false);
+			static double DotProduct(const Vector& a, const Vector& b);
 	};
 
-	const Point Origin = Point(0, 0);
-	const Point Infinity = Point(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity());
+#define Origin Point(0, 0)
+#define Infinity Point(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())
+#define DefaultQuaternion Quaternion()
 }

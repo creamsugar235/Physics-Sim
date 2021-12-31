@@ -32,8 +32,7 @@ namespace geometry
 
 	double Calc::GetAngle(const Point& center, const Point& point)
 	{
-		Point third = center.x > point.x ? Point(center.x + 1, center.y) : Point(center.x - 1, center.y);
-		return GetAngle(point, center, third);
+		return atan2(point.y - center.y, point.x - center.x);
 	}
 
 	Point Calc::GetPointOnCircle(const Point& center, double radius, double angle)
@@ -77,5 +76,11 @@ namespace geometry
 			return p;
 		}
 		return Infinity;
+	}
+
+	double Calc::DotProduct(const Vector& a, const Vector& b)
+	{
+		double product;
+		product = product +
 	}
 }

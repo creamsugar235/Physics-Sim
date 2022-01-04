@@ -10,8 +10,8 @@ namespace physics
 	{
 		public:
 			typedef std::chrono::high_resolution_clock Clock;
-			std::chrono::time_point<std::chrono::high_resolution_clock> start;
-			std::chrono::time_point<std::chrono::high_resolution_clock> stop;
+			std::chrono::time_point<Clock> start;
+			std::chrono::time_point<Clock> stop;
 			void Reset();
 			void Start();
 			void Stop();

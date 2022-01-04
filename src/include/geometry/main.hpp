@@ -122,11 +122,16 @@ namespace geometry
 		public:
 			double x;
 			double y;
-			double angle;
-			double magnitude;
 			Vector();
-			Vector(double x, double y, double magnitude);
-			Vector(Point p, double magnitude);
+			Vector(double x, double y);
+			Vector(Point p);
+			double magnitude() const;
+			void Normalize();
+			Vector Normalized() const;
+			double Cross(const Vector& v) const noexcept;
+			static Vector Cross(const Vector& v, const double& s);
+			static Vector Cross(const double& s, const Vector& v);
+			double Dot(const Vector& v) const;
 			Vector operator-() const noexcept;
 			Vector operator+() const noexcept;
 			bool operator==(const Vector& v) const noexcept;
@@ -148,7 +153,9 @@ namespace geometry
 			void operator*=(const Vector& v) noexcept;
 			void operator*=(const double& d) noexcept;
 	};
-	
+	Vector operator*(const double& d, const Vector& v) noexcept;
+	Vector operator+(const double& d, const Vector& v) noexcept;
+
 	class Calc
 	{
 		public:
@@ -162,7 +169,6 @@ namespace geometry
 			static double GetSlope(const Point& a, const Point& b);
 			static bool Intersecting(const Line& a, const Line& b, bool isInfLine = false);
 			static Point PointOfIntersect(const Line& a, const Line& b, bool isInfLine = false);
-			static double DotProduct(const Vector& a, const Vector& b);
 	};
 
 #define Origin Point(0, 0)

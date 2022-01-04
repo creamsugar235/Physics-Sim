@@ -12,11 +12,11 @@ namespace algo
 		if (r < pow(a->center.x + b->center.x, 2) + pow(a->center.y + b->center.y, 2))
 		{
 			geometry::Line l(a->center, b->center);
-			c.a = l.GetPointAlongLine(l.length() - a->radius);
-			c.b = l.GetPointAlongLine(l.length() - b->radius, false);
+			c.a = geometry::Vector(l.GetPointAlongLine(l.length() - a->radius));
+			c.b = geometry::Vector(l.GetPointAlongLine(l.length() - b->radius, false));
 			c.depth = l.length();
-			c.normal = geometry::Vector(c.b) - geometry::Vector(c.a);
-			c.normal.magnitude = 1;
+			c.normal = c.b - c.a;
+			c.normal.Normalize();
 			c.hasCollision = true;
 		}
 		return c;
@@ -70,11 +70,11 @@ namespace algo
 			}
 			if (!reached)
 				return c;
-			c.b = closest;
-			c.a = Line(b->center, closest).GetPointAlongLine(b->radius);
+			c.b = geometry::Vector(closest);
+			c.a = geometry::Vector(Line(b->center, closest).GetPointAlongLine(b->radius));
 			c.depth = Calc::Distance(c.a, c.b);
-			c.normal = Vector(c.b) - Vector(c.a);
-			c.normal.magnitude = 1;
+			c.normal = c.b - c.a;
+			c.normal.Normalize();
 			c.hasCollision = true;
 			return c;
 		}
@@ -93,9 +93,8 @@ namespace algo
 			}
 			double twiceArea = 0, x = 0, y = 0, f = 0;
 			geometry::Point p1, p2;
-			int j;
 			// absolutely no clue what this does, it just works lol
-			for (int i = 0, j = points.size() - 1; i < points.size(); j=i++)
+			for (size_t i = 0, j = points.size() - 1; i < points.size(); j=i++)
 			{
 				p1 = points[i]; p2 = points[j];
 				f = (p1.y - first.y) * (p2.x - first.x) - (p2.y - first.y) * (p1.x - first.x);
@@ -152,7 +151,9 @@ namespace algo
 		for (const Point& p: pointIntersectsB)
 		{
 			if (!reached)
+			{
 				reached = true; closest = p; continue;
+			}
 			if (Calc::Distance(p, centroidB) < Calc::Distance(closest, centroidB))
 				closest = p; 
 		}
@@ -191,15 +192,19 @@ namespace algo
 		for (const Point& p: pointIntersectsA)
 		{
 			if (!reached)
+			{
 				reached = true; closest = p; continue;
+			}
 			if (Calc::Distance(p, centroidA) < Calc::Distance(closest, centroidA))
-				closest = p; 
+			{
+				closest = p;
+			}
 		}
-		c.a = closest;
+		c.a = Vector(closest);
 		c.depth = Calc::Distance(c.a, c.b);
-		c.normal = Vector(c.b) - Vector(c.a);
-		c.normal.magnitude = 1;
-			c.hasCollision = true;
+		c.normal = c.b - c.a;
+		c.normal.Normalize();
+		c.hasCollision = true;
 		return c;
 	}
 }

@@ -38,7 +38,7 @@ namespace geometry
 
 	Point::operator Vector(void) const
 	{
-		return Vector(x, y, 0);
+		return Vector(x, y);
 	}
 
 	Point Point::operator*(const Point& p)

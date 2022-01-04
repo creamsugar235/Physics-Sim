@@ -44,6 +44,7 @@ namespace physics
 	{
 		geometry::Point center;
 		double radius;
+		CircleCollider(const CircleCollider& c);
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
 			const Collider* collider,
@@ -62,6 +63,7 @@ namespace physics
 	{
 		geometry::Point pos;
 		std::vector<geometry::Point> points;
+		DynamicCollider(const DynamicCollider& d);
 		DynamicCollider(geometry::Point pos, geometry::Point a, geometry::Point b, geometry::Point c, std::initializer_list<geometry::Point> extra);
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
@@ -89,43 +91,51 @@ namespace physics
 		protected:
 			Transform _transform;
 			Transform _lastTransform;
-			std::unique_ptr<Collider> _collider = NULL;
+			std::shared_ptr<Collider> _collider;
 			bool _isTrigger;
 			bool _isDynamic;
 			std::function<void(Collision&, double)> _onCollision;
 		public:
+			CollisionObject(const Transform& t, std::shared_ptr<Collider> c, bool isTrigger);
+			virtual ~CollisionObject();
 			bool IsTrigger();
 			bool IsDynamic();
-			Collider* GetCollider() const;
+			std::shared_ptr<Collider> GetCollider() const;
 			geometry::Point GetPosition() const;
 			geometry::Quaternion GetRotation() const;
 			const Transform& GetTransform() const;
 			const Transform& GetLastTransform() const;
 			void SetCollider(Collider* c);
 			void SetIsTrigger(bool b);
+			void SetLastTransform(const Transform& t);
 			void SetPosition(const geometry::Point& p);
 			void SetRotation(const geometry::Quaternion& q);
-			void SetTransform(const Transform& t);		
+			void SetTransform(const Transform& t);
 	};
 
 	struct Rigidbody : public CollisionObject
 	{
-		private:
+		protected:
 			geometry::Vector _gravity;
 			geometry::Vector _force;
 			geometry::Vector _velocity;
-			double _mass;
-			bool _usesGravity;
-			double _staticFriction;
-			double _dynamicFriction;
-			double _restitution;
+			double _mass = 1;
+			double _invMass = 1;
+			bool _usesGravity = true;
+			double _staticFriction = 0.5;
+			double _dynamicFriction = 0.5;
+			double _restitution = 0.5;
 		public:
+			Rigidbody(const Transform& t, std::shared_ptr<Collider> c, bool isTrigger, double mass,
+				bool usesGravity=true, double staticFriction=0.5, double dynamicFriction=0.5,
+				double restitution=0.5);
 			void ApplyForce(geometry::Vector f);
 			double GetDynamicFriction() const;
 			geometry::Vector GetForce() const;
 			geometry::Vector GetGravity() const;
 			double GetMass() const;
-			double GetRestitution();
+			double GetInvMass() const;
+			double GetRestitution() const;
 			double GetStaticFriction() const;
 			geometry::Vector GetVelocity() const;
 			void SetDynamicFriction(double f);

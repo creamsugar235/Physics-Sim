@@ -20,7 +20,7 @@ namespace geometry
 		this->z = z;
 	}
 
-	Point3D::Move(double offsetX, double offsetY, double offsetZ)
+	void Point3D::Move(double offsetX, double offsetY, double offsetZ)
 	{
 		x += offsetX;
 		y += offsetY;

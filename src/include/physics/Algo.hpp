@@ -2,17 +2,12 @@
 using namespace physics;
 namespace algo
 {
-	CollisionPoints FindCircleDynamicCollisionPoints(
-		const CircleCollider* a, const Transform& ta,
-		const DynamicCollider* b, const Transform& tb
-	);
-
 	CollisionPoints FindDynamicCircleCollisionPoints(
 		const DynamicCollider* a, const Transform& ta,
 		const CircleCollider* b, const Transform& tb
 	);
 
-	CollisionPoints FindCirlceCircleCollisionPoints(
+	CollisionPoints FindCircleCircleCollisionPoints(
 		const CircleCollider* a, const Transform& ta,
 		const CircleCollider* b, const Transform& tb
 	);

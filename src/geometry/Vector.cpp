@@ -6,40 +6,87 @@ namespace geometry
 	{
 	}
 
-	Vector::Vector(double x, double y, double magnitude)
+	Vector::Vector(double x, double y)
 	{
 		this->x = x;
 		this->y = y;
-		this->angle = Calc::GetAngle(Origin, Point(x, y));
-		this->magnitude = magnitude;
 	}
 	
-	Vector::Vector(Point p, double magnitude)
+	Vector::Vector(Point p)
 	{
 		this->x = p.x;
 		this->y = p.y;
-		this->angle = Calc::GetAngle(Origin, Point(x, y));
-		this->magnitude = magnitude;
+	}
+
+	double Vector::Cross(const Vector& v) const noexcept
+	{
+		return x * v.y - y * v.x;
+	}
+
+	Vector Vector::Cross(const Vector& v, const double& s)
+	{
+		return Vector(s * v.y, -s * v.x);
+	}
+
+	Vector Vector::Cross(const double& s, const Vector& v)
+	{
+		return Vector(-s * v.y, s * v.x);
+	}
+
+	double Vector::Dot(const Vector& v) const
+	{
+		return x * v.x + y * v.y;
+	}
+
+	double Vector::magnitude() const
+	{
+		return x * x + y * y;
+	}
+
+	void Vector::Normalize()
+	{
+		double mag = magnitude();
+		if (mag > 0.00001)
+			*this = *this / mag;
+		else
+			*this = Vector(0, 0);
+	}
+
+	Vector Vector::Normalized() const
+	{
+		Vector v = *this;
+		v.Normalized();
+		return v;
+	}
+
+	Vector operator*(const double& d, const Vector& v) noexcept
+	{
+		return Vector(d * v.x, d * v.y);
+	}
+
+	Vector operator+(const double& d, const Vector& v) noexcept
+	{
+		return Vector(d + v.x, d + v.y);
 	}
 
 	Vector Vector::operator-() const noexcept
 	{
-		return Vector(-x, -y, magnitude);
+		return Vector(-x, -y);
 	}
 
 	Vector Vector::operator+() const noexcept
 	{
-		return Vector(+x, +y, magnitude);
+		return Vector(+x, +y);
 	}
 
 	bool Vector::operator==(const Vector &v) const noexcept
 	{
-		return (Point(x, y) == Point(v.x, v.y) && magnitude == v.magnitude && (angle - 0.001 < v.angle && v.angle < angle + 0.001));
+		return x == v.x && y == v.y;
 	}
 
 	bool Vector::operator!=(const Vector &v) const noexcept
 	{
-		return !(Point(x, y) == Point(v.x, v.y) && magnitude == v.magnitude && (angle - 0.001 < v.angle && v.angle < angle + 0.001));
+		return x != v.x || y != v.y;
 	}
 
 	Vector Vector::operator+(const Vector& v) const noexcept
@@ -47,8 +94,6 @@ namespace geometry
 		Vector result(*this);
 		result.x += v.x;
 		result.y += v.y;
-		result.angle = Calc::GetAngle(Origin, Point(result.x, result.y));
-		result.magnitude += v.magnitude;
 		return result;
 	}
 
@@ -57,8 +102,6 @@ namespace geometry
 		Vector result(*this);
 		result.x += d;
 		result.y += d;
-		result.angle = Calc::GetAngle(Origin, Point(result.x, result.y));
-		result.magnitude += d;
 		return result;
 	}
 
@@ -66,16 +109,12 @@ namespace geometry
 	{
 		x += v.x;
 		y += v.y;
-		angle = Calc::GetAngle(Origin, Point(x, y));
-		magnitude += v.magnitude;
 	}
 
 	void Vector::operator+=(const double& d) noexcept
 	{
 		x += d;
 		y += d;
-		angle = Calc::GetAngle(Origin, Point(x, y));
-		magnitude += d;
 	}
 
 	Vector Vector::operator-(const Vector& v) const noexcept
@@ -83,8 +122,6 @@ namespace geometry
 		Vector result(*this);
 		result.x -= v.x;
 		result.y -= v.y;
-		result.angle = Calc::GetAngle(Origin, Point(result.x, result.y));
-		result.magnitude -= v.magnitude;
 		return result;
 	}
 
@@ -93,8 +130,6 @@ namespace geometry
 		Vector result(*this);
 		result.x -= d;
 		result.y -= d;
-		result.angle = Calc::GetAngle(Origin, Point(result.x, result.y));
-		result.magnitude -= d;
 		return result;
 	}
 
@@ -102,16 +137,12 @@ namespace geometry
 	{
 		x -= v.x;
 		y -= v.y;
-		angle = Calc::GetAngle(Origin, Point(x, y));
-		magnitude -= v.magnitude;
 	}
 
 	void Vector::operator-=(const double& d) noexcept
 	{
 		x -= d;
 		y -= d;
-		angle = Calc::GetAngle(Origin, Point(x, y));
-		magnitude -= d;
 	}
 
 	Vector Vector::operator*(const Vector& v) const noexcept
@@ -119,8 +150,6 @@ namespace geometry
 		Vector result(*this);
 		result.x *= v.x;
 		result.y *= v.y;
-		result.angle = Calc::GetAngle(Origin, Point(result.x, result.y));
-		result.magnitude *= v.magnitude;
 		return result;
 	}
 
@@ -129,8 +158,6 @@ namespace geometry
 		Vector result(*this);
 		result.x *= d;
 		result.y *= d;
-		result.angle = Calc::GetAngle(Origin, Point(result.x, result.y));
-		result.magnitude *= d;
 		return result;
 	}
 
@@ -138,16 +165,12 @@ namespace geometry
 	{
 		x *= v.x;
 		y *= v.y;
-		angle = Calc::GetAngle(Origin, Point(x, y));
-		magnitude *= v.magnitude;
 	}
 
 	void Vector::operator*=(const double& d) noexcept
 	{
 		x *= d;
 		y *= d;
-		angle = Calc::GetAngle(Origin, Point(x, y));
-		magnitude *= d;
 	}
 
 	Vector Vector::operator/(const Vector& v) const noexcept
@@ -155,8 +178,6 @@ namespace geometry
 		Vector result(*this);
 		result.x /= v.x;
 		result.y /= v.y;
-		result.angle = Calc::GetAngle(Origin, Point(result.x, result.y));
-		result.magnitude /= v.magnitude;
 		return result;
 	}
 
@@ -165,8 +186,6 @@ namespace geometry
 		Vector result(*this);
 		result.x /= d;
 		result.y /= d;
-		result.angle = Calc::GetAngle(Origin, Point(result.x, result.y));
-		result.magnitude /= d;
 		return result;
 	}
 
@@ -174,15 +193,11 @@ namespace geometry
 	{
 		x /= v.x;
 		y /= v.y;
-		angle = Calc::GetAngle(Origin, Point(x, y));
-		magnitude /= v.magnitude;
 	}
 
 	void Vector::operator/=(const double& d) noexcept
 	{
 		x /= d;
 		y /= d;
-		angle = Calc::GetAngle(Origin, Point(x, y));
-		magnitude /= d;
 	}
 }

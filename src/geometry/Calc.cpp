@@ -77,10 +77,4 @@ namespace geometry
 		}
 		return Infinity;
 	}
-
-	double Calc::DotProduct(const Vector& a, const Vector& b)
-	{
-		double product;
-		product = product +
-	}
 }

@@ -33,7 +33,7 @@ namespace physics
 			Counter _physicsUpdateCounter;
 			PhysicsSmoothStepSystem _smoother;
 			double _dt;
-			std::vector<std::shared_ptr<Entity>> _entities;
+			std::vector<std::unique_ptr<Entity>> _entities;
 			DynamicsWorld _world;
 			geometry::Vector _gravity = geometry::Vector(0, -9.81);
 			bool debugDraw;
@@ -42,11 +42,11 @@ namespace physics
 			~Scene();
 			void SetGravity(const geometry::Vector& g);
 			void SetDt(double dt);
-			std::shared_ptr<Entity> CreateEntity(const std::string& name, std::shared_ptr<CollisionObject> c, const Transform& t, const sf::Sprite& s);
-			void AddEntity(std::shared_ptr<Entity> e);
+			void AddEntity(Entity& e);
+			void RemoveEntity(Entity& e);
 			void Step(double dt);
 			double GetDt() const;
-			std::vector<std::shared_ptr<Entity>> GetEntities() const;
+			const std::vector<std::unique_ptr<Entity>>& GetEntities() const;
 			unsigned short physicsUpdateFrequency = 60;
 			Display* display = NULL;
 	};

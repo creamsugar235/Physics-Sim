@@ -28,12 +28,12 @@ namespace physics
 		};
 		for (auto& ptr: _s->GetEntities())
 		{
-			Transform t = ptr->GetCollisionObject()->GetTransform();
-			CollisionObject* object = ptr->GetCollisionObject().get();
-			Transform last = object->GetLastTransform();
-			Transform current = object->GetTransform();
+			Transform t = ptr->GetCollisionObject().GetTransform();
+			CollisionObject& object = ptr->GetCollisionObject();
+			Transform last = object.GetLastTransform();
+			Transform current = object.GetTransform();
 			t.position = lerp(geometry::Vector(last.position), geometry::Vector(current.position), _accumulator / _s->physicsUpdateFrequency);
-			object->SetTransform(t);
+			object.SetTransform(t);
 		}
 		_accumulator += dt;
 	}
@@ -57,27 +57,37 @@ namespace physics
 		delete display;
 	}
 
-	std::shared_ptr<Entity> Scene::CreateEntity(const std::string& name, std::shared_ptr<CollisionObject> c, const Transform& t, const sf::Sprite& s)
-	{
-		Entity* E = new Entity(name, c, t, s);
-		return std::shared_ptr<Entity>(E);
-	}
-
-	std::vector<std::shared_ptr<Entity>> Scene::GetEntities() const
+	const std::vector<std::unique_ptr<Entity>>& Scene::GetEntities() const
 	{
 		return _entities;
 	}
 
-	void Scene::AddEntity(std::shared_ptr<Entity> e)
+	void Scene::AddEntity(Entity& e)
 	{
-		_entities.emplace_back(e);
-		if (e->GetCollisionObject()->IsDynamic())
+		std::unique_ptr<Entity> ptr(e.Clone());
+		if (ptr->GetCollisionObject().IsDynamic())
 		{
-			_world.AddRigidbody(std::shared_ptr<Rigidbody>(dynamic_cast<Rigidbody*>(e->GetCollisionObject().get())));
+			_world.AddRigidbody(dynamic_cast<Rigidbody*>(&ptr->GetCollisionObject()));
 		}
 		else
 		{
-			_world.AddObject(e->GetCollisionObject());
+			_world.AddObject(&ptr->GetCollisionObject());
+		}
+		_entities.emplace_back(ptr.release());
+	}
+
+	void Scene::RemoveEntity(Entity& e)
+	{
+		size_t ind;
+		for (auto& ptr: _entities)
+		{
+			if (*ptr == e)
+			{
+				_world.RemoveObject(&ptr->GetCollisionObject());
+				_entities.erase(_entities.begin() + ind);
+				return;
+			}
+			ind++;
 		}
 	}
 
@@ -85,10 +95,9 @@ namespace physics
 	{
 		if (dt + _fpsCounter.total > 1000)
 		{
-			std::cout<<"UPDAtE!!"<<std::endl;
 			if (_fpsCounter.loopsPerSecond.size() > 60)
 				_fpsCounter.loopsPerSecond.clear();
-			_fpsCounter.loopsPerSecond.push_back(_fpsCounter.loops);
+			_fpsCounter.loopsPerSecond.push_back((double)_fpsCounter.loops);
 			_fpsCounter.total = dt;
 			_fpsCounter.loops = 0;
 		}
@@ -108,10 +117,6 @@ namespace physics
 			{
 				_physicsUpdateCounter.total += dt;
 			}
-		}
-		else
-		{
-			_world.Update(dt);
 		}
 	}
 }

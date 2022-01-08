@@ -26,6 +26,8 @@ namespace physics
 
 	struct Collider
 	{
+		virtual Collider* Clone() const = 0;
+		virtual ~Collider();
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
 			const Collider* collider,
@@ -45,6 +47,7 @@ namespace physics
 		geometry::Point center;
 		double radius;
 		CircleCollider(const CircleCollider& c);
+		Collider* Clone() const override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
 			const Collider* collider,
@@ -64,7 +67,8 @@ namespace physics
 		geometry::Point pos;
 		std::vector<geometry::Point> points;
 		DynamicCollider(const DynamicCollider& d);
-		DynamicCollider(geometry::Point pos, geometry::Point a, geometry::Point b, geometry::Point c, std::initializer_list<geometry::Point> extra);
+		DynamicCollider(geometry::Point pos, geometry::Point a, geometry::Point b, geometry::Point c, std::initializer_list<geometry::Point> extra={});
+		Collider* Clone() const override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
 			const Collider* collider,
@@ -91,21 +95,23 @@ namespace physics
 		protected:
 			Transform _transform;
 			Transform _lastTransform;
-			std::shared_ptr<Collider> _collider;
+			Collider* _collider;
 			bool _isTrigger;
 			bool _isDynamic;
 			std::function<void(Collision&, double)> _onCollision;
 		public:
-			CollisionObject(const Transform& t, std::shared_ptr<Collider> c, bool isTrigger);
+			CollisionObject(const Transform& t, Collider& c, bool isTrigger);
+			CollisionObject(const CollisionObject& c);
 			virtual ~CollisionObject();
-			bool IsTrigger();
-			bool IsDynamic();
-			std::shared_ptr<Collider> GetCollider() const;
+			virtual CollisionObject* Clone() const;
+			bool IsTrigger() const;
+			bool IsDynamic() const;
+			Collider& GetCollider() const;
 			geometry::Point GetPosition() const;
 			geometry::Quaternion GetRotation() const;
 			const Transform& GetTransform() const;
 			const Transform& GetLastTransform() const;
-			void SetCollider(Collider* c);
+			void SetCollider(Collider& c);
 			void SetIsTrigger(bool b);
 			void SetLastTransform(const Transform& t);
 			void SetPosition(const geometry::Point& p);
@@ -126,9 +132,11 @@ namespace physics
 			double _dynamicFriction = 0.5;
 			double _restitution = 0.5;
 		public:
-			Rigidbody(const Transform& t, std::shared_ptr<Collider> c, bool isTrigger, double mass,
+			Rigidbody(const Transform& t, Collider& c, bool isTrigger, double mass,
 				bool usesGravity=true, double staticFriction=0.5, double dynamicFriction=0.5,
 				double restitution=0.5);
+			Rigidbody(const Rigidbody& r);
+			CollisionObject* Clone() const override;
 			void ApplyForce(geometry::Vector f);
 			double GetDynamicFriction() const;
 			geometry::Vector GetForce() const;

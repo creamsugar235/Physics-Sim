@@ -1,21 +1,45 @@
 #include "../include/physics/Entity.hpp"
+#include <iostream>
 namespace physics
 {
-	Entity::Entity(const std::string& name, std::shared_ptr<CollisionObject> c, const Transform& t, const sf::Sprite& s)
+	Entity::Entity(const std::string& name, CollisionObject& c, const Transform& t, const sf::Sprite& s)
 	{
 		_name = name;
-		_collider = c;
+		_collider = c.Clone();
 		_sprite = s;
+		_texture = *s.getTexture();
+		_sprite.setTexture(_texture);
 		_transform = t;
+	}
+
+	Entity::Entity(const Entity& e)
+	{
+		_name = e.GetName();
+		_collider = e.GetCollisionObject().Clone();
+		_sprite = e.GetSprite();
+		_texture = *e.GetSprite().getTexture();
+		_sprite.setTexture(_texture);
+		_transform = e.GetTransform();
+	}
+
+	bool Entity::operator==(const Entity& other) const noexcept
+	{
+		return true;
 	}
 
 	Entity::~Entity()
 	{
+		delete _collider;
 	}
 
-	std::shared_ptr<CollisionObject> Entity::GetCollisionObject() const noexcept
+	Entity* Entity::Clone() const noexcept
 	{
-		return _collider;
+		return new Entity(*this);
+	}
+
+	CollisionObject& Entity::GetCollisionObject() const noexcept
+	{
+		return *_collider;
 	}
 
 	std::string Entity::GetName() const noexcept
@@ -25,6 +49,7 @@ namespace physics
 
 	sf::Sprite Entity::GetSprite() const noexcept
 	{
+		//std::cout<<"IS MY SPRITE MESSED UP?"<<std::endl;
 		return _sprite;
 	}
 
@@ -33,9 +58,10 @@ namespace physics
 		return _transform;
 	}
 
-	void Entity::SetCollisionObject(std::shared_ptr<CollisionObject> c)
+	void Entity::SetCollisionObject(CollisionObject& c)
 	{
-		_collider = c;
+		delete _collider;
+		_collider = c.Clone();
 	}
 
 	void Entity::SetName(const std::string& s)
@@ -52,5 +78,10 @@ namespace physics
 	{
 		_transform = t;
 		_sprite.setPosition(t.position.x, t.position.y);
+	}
+
+	void Entity::Update()
+	{
+		_transform.position = _collider->GetTransform().position;
 	}
 }

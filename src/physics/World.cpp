@@ -1,4 +1,5 @@
 #include "../include/physics/World.hpp"
+#include <iostream>
 
 namespace physics
 {
@@ -81,12 +82,12 @@ namespace physics
 		return true;
 	}
 
-	void CollisionWorld::AddObject(std::shared_ptr<CollisionObject> o)
+	void CollisionWorld::AddObject(CollisionObject* o)
 	{
 		_objects.emplace_back(o);
 	}
 
-	void CollisionWorld::AddSolver(std::shared_ptr<Solver> s)
+	void CollisionWorld::AddSolver(Solver* s)
 	{
 		_solvers.emplace_back(s);
 	}
@@ -94,80 +95,82 @@ namespace physics
 	void CollisionWorld::ResolveCollisions(double dt)
 	{
 		std::vector<Collision> collisions;
-		for (std::shared_ptr<CollisionObject> a: _objects)
+		for (auto& a: _objects)
 		{
-			for (std::shared_ptr<CollisionObject> b: _objects)
+			for (auto& b: _objects)
 			{
 				if (a == b) break;
-				if (!a->GetCollider() || !b->GetCollider())
-				{
-					continue;
-				}
 				Square BoundingBoxA;
 				Square BoundingBoxB;
-				if (dynamic_cast<CircleCollider*>(a->GetCollider().get()))
+				auto clone = a->GetCollider().Clone();
+				if (dynamic_cast<CircleCollider*>(clone))
 				{
-					CircleCollider* cc = dynamic_cast<CircleCollider*>(a->GetCollider().get());
-					geometry::Point center = cc->center;
-					double radius = cc->radius;
+					CircleCollider& cc = dynamic_cast<CircleCollider&>(a->GetCollider());
+					geometry::Point center = cc.center;
+					double radius = cc.radius;
 					BoundingBoxA.x = center.x - radius;
 					BoundingBoxA.y = center.y - radius;
 					BoundingBoxA.width = radius * 2;
 					BoundingBoxA.height = radius * 2;
 				}
-				else if (dynamic_cast<DynamicCollider*>(a->GetCollider().get()))
+				else if (dynamic_cast<DynamicCollider*>(clone))
 				{
-					DynamicCollider* dc = dynamic_cast<DynamicCollider*>(a->GetCollider().get());
-					geometry::Point minimum = getMin(dc->points);
-					geometry::Point maximum = getMax(dc->points);
+					DynamicCollider& dc = dynamic_cast<DynamicCollider&>(a->GetCollider());
+					geometry::Point minimum = getMin(dc.points);
+					geometry::Point maximum = getMax(dc.points);
 					BoundingBoxA.x = minimum.x;
 					BoundingBoxA.y = minimum.y;
 					BoundingBoxA.width = maximum.x - minimum.x;
 					BoundingBoxA.height = maximum.y - minimum.y;
 				}
-				if (dynamic_cast<CircleCollider*>(b->GetCollider().get()))
+				delete clone;
+				clone = b->GetCollider().Clone();
+				if (dynamic_cast<CircleCollider*>(clone))
 				{
-					CircleCollider* cc = dynamic_cast<CircleCollider*>(b->GetCollider().get());
-					geometry::Point center = cc->center;
-					double radius = cc->radius;
+					CircleCollider& cc = dynamic_cast<CircleCollider&>(b->GetCollider());
+					geometry::Point center = cc.center;
+					double radius = cc.radius;
 					BoundingBoxB.x = center.x - radius;
 					BoundingBoxB.y = center.y - radius;
 					BoundingBoxB.width = radius * 2;
 					BoundingBoxB.height = radius * 2;
 				}
-				else if (dynamic_cast<DynamicCollider*>(b->GetCollider().get()))
+				else if (dynamic_cast<DynamicCollider*>(clone))
 				{
-					DynamicCollider* dc = dynamic_cast<DynamicCollider*>(b->GetCollider().get());
-					geometry::Point minimum = getMin(dc->points);
-					geometry::Point maximum = getMax(dc->points);
+					DynamicCollider& dc = dynamic_cast<DynamicCollider&>(b->GetCollider());
+					geometry::Point minimum = getMin(dc.points);
+					geometry::Point maximum = getMax(dc.points);
 					BoundingBoxB.x = minimum.x;
 					BoundingBoxB.y = minimum.y;
 					BoundingBoxB.width = maximum.x - minimum.x;
 					BoundingBoxB.height = maximum.y - minimum.y;
 				}
+				delete clone;
 				if (SquareOverLaps(BoundingBoxA, BoundingBoxB))
 				{
-					CollisionPoints points = a->GetCollider()->TestCollision(
-						a->GetTransform(), b->GetCollider().get(), b->GetTransform()
+					std::cout<<"OMG WE TOUCHED?"<<std::endl;
+					CollisionPoints points = a->GetCollider().TestCollision(
+						a->GetTransform(), &b->GetCollider(), b->GetTransform()
 					);
 					if (points.hasCollision)
 					{
+						std::cout<<"WE DIDDD!!"<<std::endl;
 						Collision c;
-						c.a = a.get();
-						c.b = b.get();
+						c.a = a;
+						c.b = b;
 						c.points = points;
 						collisions.push_back(c);
 					}
 				}
 			}
 		}
-		for (std::shared_ptr<Solver> solver: _solvers)
+		for (auto solver: _solvers)
 		{
 			solver->Solve(collisions, dt);
 		}
 	}
 
-	void CollisionWorld::RemoveObject(std::shared_ptr<CollisionObject> o)
+	void CollisionWorld::RemoveObject(CollisionObject* o)
 	{
 		for (auto p = _objects.begin(); p < _objects.end(); p++)	
 		{
@@ -179,7 +182,7 @@ namespace physics
 		}
 	}
 
-	void CollisionWorld::RemoveSolver(std::shared_ptr<Solver> s)
+	void CollisionWorld::RemoveSolver(Solver* s)
 	{
 		for (auto p = _solvers.begin(); p < _solvers.end(); p++)
 		{
@@ -208,32 +211,33 @@ namespace physics
 		}
 	}
 
-	void DynamicsWorld::AddRigidbody(std::shared_ptr<Rigidbody> r)
+	void DynamicsWorld::AddRigidbody(Rigidbody* r)
 	{
 		if (r->UsesGravity())
 		{
 			r->SetGravity(_gravity);
 		}
+		_objects.emplace_back(r);
 	}
 
 	void DynamicsWorld::ApplyGravity()
 	{
-		for (std::shared_ptr<CollisionObject> obj: _objects)
+		for (auto& obj: _objects)
 		{
 			if (!obj->IsDynamic()) continue;
-			Rigidbody* rigidbody = (Rigidbody*) obj.get();
+			Rigidbody* rigidbody = (Rigidbody*) obj;
 			rigidbody->ApplyForce(rigidbody->GetGravity() * rigidbody->GetMass());
 		}
 	}
 
 	void DynamicsWorld::MoveObjects(double dt)
 	{
-		for (std::shared_ptr<CollisionObject> obj: _objects)
+		for (auto& obj: _objects)
 		{
 			if (!obj->IsDynamic()) continue;
-			Rigidbody* rigidbody = (Rigidbody*)obj.get();
+			Rigidbody* rigidbody = (Rigidbody*)obj;
 			geometry::Vector vel = rigidbody->GetVelocity()
-			+ rigidbody->GetForce() / rigidbody->GetMass() * dt;
+			+ (rigidbody->GetForce() / rigidbody->GetMass() * dt);
 			rigidbody->SetVelocity(vel);
 			geometry::Vector pos = geometry::Vector(rigidbody->GetPosition()) + rigidbody->GetVelocity() * dt;
 			rigidbody->SetPosition(pos);

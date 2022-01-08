@@ -23,10 +23,25 @@ namespace physics
 		points.insert(points.begin(), a);
 	}
 
+	Collider::~Collider()
+	{
+	}
+
+
+	Collider* DynamicCollider::Clone() const
+	{
+		return new DynamicCollider(*this);
+	}
+
 	CircleCollider::CircleCollider(const CircleCollider& c)
 	{
 		this->radius = c.radius;
 		this->center = c.center;
+	}
+
+	Collider* CircleCollider::Clone() const
+	{
+		return new CircleCollider(*this);
 	}
 
 	CollisionPoints CircleCollider::TestCollision(const Transform& transform,
@@ -71,30 +86,43 @@ namespace physics
 		return algo::FindDynamicDynamicCollisionPoints(this, transform, collider, colliderTransform);
 	}
 
-	CollisionObject::CollisionObject(const Transform& t, std::shared_ptr<Collider> c, bool isTrigger)
+	CollisionObject::CollisionObject(const Transform& t, Collider& c, bool isTrigger)
 	{
 		_transform = t;
-		_collider = c;
+		_collider = c.Clone();
 		_isTrigger = isTrigger;
+	}
+
+	CollisionObject::CollisionObject(const CollisionObject& c)
+	{
+		_transform = c.GetTransform();
+		_collider = c.GetCollider().Clone();
+		_isTrigger = c.IsTrigger();
+	}
+
+	CollisionObject* CollisionObject::Clone() const
+	{
+		return new CollisionObject(*this);
 	}
 
 	CollisionObject::~CollisionObject()
 	{
+		delete _collider;
 	}
 
-	bool CollisionObject::IsTrigger()
+	bool CollisionObject::IsTrigger() const
 	{
 		return _isTrigger;
 	}
 
-	bool CollisionObject::IsDynamic()
+	bool CollisionObject::IsDynamic() const
 	{
 		return _isDynamic;
 	}
 
-	std::shared_ptr<Collider> CollisionObject::GetCollider() const
+	Collider& CollisionObject::GetCollider() const
 	{
-		return _collider;
+		return *_collider;
 	}
 
 	geometry::Point CollisionObject::GetPosition() const
@@ -117,9 +145,10 @@ namespace physics
 		return _lastTransform;
 	}
 
-	void CollisionObject::SetCollider(Collider* c)
+	void CollisionObject::SetCollider(Collider& c)
 	{
-		_collider.reset(c);
+		delete _collider;
+		_collider = c.Clone();
 	}
 
 	void CollisionObject::SetLastTransform(const Transform& t)

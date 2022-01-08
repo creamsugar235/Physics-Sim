@@ -2,10 +2,11 @@
 
 namespace physics
 {
-	Rigidbody::Rigidbody(const Transform& t, std::shared_ptr<Collider> c, bool isTrigger, double mass,
-				bool usesGravity, double staticFriction, double dynamicFriction,
-				double restitution) : CollisionObject(t, c, isTrigger)
+	Rigidbody::Rigidbody(const Transform& t, Collider& c, bool isTrigger, double mass,
+		bool usesGravity, double staticFriction, double dynamicFriction,
+		double restitution) : CollisionObject(t, c, isTrigger)
 	{
+		_isDynamic = true;
 		_mass = mass;
 		_usesGravity = usesGravity;
 		_staticFriction = staticFriction;
@@ -13,9 +14,25 @@ namespace physics
 		_restitution = restitution;
 	}
 
+	Rigidbody::Rigidbody(const Rigidbody& r)
+		: CollisionObject(r.GetTransform(), r.GetCollider(), r.IsTrigger())
+	{
+		_isDynamic = true;
+		_mass = r.GetMass();
+		_usesGravity = r.UsesGravity();
+		_staticFriction = r.GetStaticFriction();
+		_dynamicFriction = r.GetDynamicFriction();
+		_restitution = r.GetRestitution();
+	}
+
 	void Rigidbody::ApplyForce(geometry::Vector f)
 	{
 		_velocity += f;
+	}
+
+	CollisionObject* Rigidbody::Clone() const
+	{
+		return new Rigidbody(*this);
 	}
 
 	double Rigidbody::GetDynamicFriction() const

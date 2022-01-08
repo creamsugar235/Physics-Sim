@@ -1,4 +1,5 @@
 #include "../include/physics/Display.hpp"
+#include <iostream>
 
 namespace physics
 {
@@ -19,7 +20,9 @@ namespace physics
 	void Display::Draw(const Entity& e)
 	{
 		if (_window.isOpen())
+		{
 			_window.draw(e.GetSprite());
+		}
 	}
 
 	void Display::Draw(const sf::Drawable& d)

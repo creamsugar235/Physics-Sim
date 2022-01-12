@@ -1,14 +1,12 @@
 all: compilePhysics link run
-debug: debugCompileGeometry debugCompilePhysics debugLink run
+debug: debugCompilePhysics debugLink run
 
 compileGeometry:
 	g++ -c -Wall -std=c++17 src/geometry/Calc.cpp -o bin/o/Calc.o
 	g++ -c -Wall -std=c++17 src/geometry/Line.cpp -o bin/o/Line.o
 	g++ -c -Wall -std=c++17 src/geometry/Math.cpp -o bin/o/Math.o
-	g++ -c -Wall -std=c++17 src/geometry/Point.cpp -o bin/o/Point.o
-	g++ -c -Wall -std=c++17 src/geometry/Shape.cpp -o bin/o/Shape.o
 	g++ -c -Wall -std=c++17 src/geometry/Vector.cpp -o bin/o/Vector.o
-	ar rcs lib/geometry.a bin/o/Calc.o bin/o/Line.o bin/o/Point.o bin/o/Shape.o bin/o/Vector.o bin/o/Math.o
+	ar rcs lib/geometry.a bin/o/Calc.o bin/o/Line.o bin/o/Vector.o bin/o/Math.o
 	ranlib lib/geometry.a
 	rm bin/o/*.o
 
@@ -20,19 +18,18 @@ debugCompileGeometry:
 	g++ -g -rdynamic -c -Wall -std=c++17 src/geometry/Calc.cpp -o bin/o/Calc.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/geometry/Line.cpp -o bin/o/Line.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/geometry/Math.cpp -o bin/o/Math.o
-	g++ -g -rdynamic -c -Wall -std=c++17 src/geometry/Point.cpp -o bin/o/Point.o
-	g++ -g -rdynamic -c -Wall -std=c++17 src/geometry/Shape.cpp -o bin/o/Shape.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/geometry/Vector.cpp -o bin/o/Vector.o
-	ar rcs lib/geometry.a bin/o/Calc.o bin/o/Line.o bin/o/Point.o bin/o/Shape.o bin/o/Vector.o bin/o/Math.o
+	ar rcs lib/geometry.a bin/o/Calc.o bin/o/Line.o bin/o/Vector.o bin/o/Math.o
 	ranlib lib/geometry.a
 	rm bin/o/*.o
 
 compilePhysics:
 	g++ -c -Wall -std=c++17 src/physics/Algo.cpp -o bin/o/Algo.o
 	g++ -c -Wall -std=c++17 src/physics/Collision.cpp -o bin/o/Collision.o
+	g++ -c -Wall -std=c++17 src/physics/Collider.cpp -o bin/o/Collider.o
 	g++ -c -Wall -std=c++17 src/physics/Display.cpp -o bin/o/Display.o
 	g++ -c -Wall -std=c++17 src/physics/Entity.cpp -o bin/o/Entity.o
-	g++ -c -Wall -std=c++17 src/physics/Object.cpp -o bin/o/Object.o
+	g++ -c -Wall -std=c++17 src/physics/OstreamOverloads.cpp -o bin/o/OstreamOverloads.o
 	g++ -c -Wall -std=c++17 src/physics/Rigidbody.cpp -o bin/o/Rigidbody.o
 	g++ -c -Wall -std=c++17 src/physics/Scene.cpp -o bin/o/Scene.o
 	g++ -c -Wall -std=c++17 src/physics/World.cpp -o bin/o/World.o
@@ -43,11 +40,13 @@ compilePhysics:
 debugCompilePhysics:
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Algo.cpp -o bin/o/Algo.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Collision.cpp -o bin/o/Collision.o
+	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Collider.cpp -o bin/o/Collider.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Display.cpp -o bin/o/Display.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Entity.cpp -o bin/o/Entity.o
-	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Object.cpp -o bin/o/Object.o
+	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/OstreamOverloads.cpp -o bin/o/OstraemOverloads.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Rigidbody.cpp -o bin/o/Rigidbody.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Scene.cpp -o bin/o/Scene.o
+	g++ -g -rdynamic -c -Wall -std=c++17 src/test.cpp -o bin/o/Test.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/World.cpp -o bin/o/World.o
 	ar rcs lib/physics.a bin/o/*.o
 	ranlib lib/physics.a
@@ -61,9 +60,3 @@ debugLink:
 
 run:
 	./bin/main
-
-compAsm:
-	nasm -f elf hello.asm
-	ld -m elf_i386 -s -o hello hello.o
-	rm hello.o
-	./hello

@@ -1,4 +1,5 @@
-#include "../include/geometry/main.hpp"
+#include "../include/geometry/Calc.hpp"
+#include "../include/geometry/Line.hpp"
 
 namespace geometry
 {
@@ -6,7 +7,7 @@ namespace geometry
 	{
 	}
 
-	Line::Line(const Point& a, const Point& b)
+	Line::Line(const Vector& a, const Vector& b)
 	{
 		this->a = a;
 		this->b = b;
@@ -41,10 +42,10 @@ namespace geometry
 		return _angle;
 	}
 
-	Point Line::GetPointAlongLine(double distance, bool startFromA) const
+	Vector Line::GetVectorAlongLine(double distance, bool startFromA) const
 	{
-		Point begin = startFromA ? this->a : this->b;
-		return Calc::GetPointOnCircle(begin, distance, this->_angle);
+		Vector begin = startFromA ? this->a : this->b;
+		return Calc::GetVectorOnCircle(begin, distance, this->_angle);
 	}
 
 	double Line::length() const
@@ -68,7 +69,7 @@ namespace geometry
 		return std::tuple<std::tuple<double, double>, std::tuple<double, double>>(this->a.ToTuple(), this->b.ToTuple());
 	}
 
-	void Line::Rotate(const Point& pivot, double angle)
+	void Line::Rotate(const Vector& pivot, double angle)
 	{
 		this->a.Rotate(pivot, angle);
 		this->b.Rotate(pivot, angle);

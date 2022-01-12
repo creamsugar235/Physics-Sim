@@ -11,12 +11,6 @@ namespace geometry
 		this->x = x;
 		this->y = y;
 	}
-	
-	Vector::Vector(Point p)
-	{
-		this->x = p.x;
-		this->y = p.y;
-	}
 
 	double Vector::Cross(const Vector& v) const noexcept
 	{
@@ -54,8 +48,8 @@ namespace geometry
 
 	Vector Vector::Normalized() const
 	{
-		Vector v = *this;
-		v.Normalized();
+		Vector v = Vector(this->x, this->y);
+		v.Normalize();
 		return v;
 	}
 
@@ -199,5 +193,84 @@ namespace geometry
 	{
 		x /= d;
 		y /= d;
+	}
+
+	bool Vector::operator^(Line l) const
+	{
+		return (Line(l.a(), *this).angle() == Line(*this, l.b()).angle());
+	}
+
+	bool Vector::operator<(const Vector& v) const noexcept
+	{
+		return Calc::Distance(Origin, v) > Calc::Distance(Origin, *this);
+	}
+
+	bool Vector::operator>(const Vector& v) const noexcept
+	{
+		return Calc::Distance(Origin, v) < Calc::Distance(Origin, *this);
+	}
+
+	Vector Vector::operator()() const
+	{
+		return Vector(x, y);
+	}
+
+	void Vector::Move(double offsetX, double offsetY) noexcept
+	{
+		this->x += offsetX;
+		this->y += offsetY;
+	}
+
+	int Vector::Quadrant(const Vector& p) const noexcept
+	{
+		if (p.x < this->x)
+		{
+			if (p.y < this->y)
+			{
+				return 3;
+			}
+			else if (p.y > this->y)
+			{
+				return 2;
+			}
+			return 3;
+		}
+		else if (p.x > this->x)
+		{
+			if (p.y < this->y)
+			{
+				return 4;
+			}
+			else if (p.y > this->y)
+			{
+				return 1;
+			}
+			return 1;
+		}
+		return 0;
+	}
+
+	void Vector::Rotate(const Vector& p, double angle) noexcept
+	{
+		double currentAngle = Calc::GetAngle(p, *this);
+		angle += currentAngle;
+		if (angle < 0) {angle += (M_PI * 2);}
+		if (angle > (M_PI) * 2) {angle -= M_PI;}
+		double distance = Calc::Distance(*this, p);
+		Vector v2 = Calc::GetVectorOnCircle(p, distance, angle);
+		this->x = v2.x;
+		this->y = v2.y;
+	}
+
+	std::string Vector::ToString() const noexcept
+	{
+		std::string strX = std::to_string(this->x);
+		std::string strY = std::to_string(this->y);
+		return "(" + strX + ", " + strY + ")";
+	}
+	
+	std::tuple<double, double> Vector::ToTuple() const noexcept
+	{
+		return std::tuple<double, double>(this->x, this->y);
 	}
 }

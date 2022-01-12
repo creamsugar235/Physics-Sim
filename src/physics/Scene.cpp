@@ -3,16 +3,16 @@
 
 namespace physics
 {
-	Scene::PhysicsSmoothStepSystem::PhysicsSmoothStepSystem(Scene& s)
+	Scene::PhysicsSmoothStepSystem::PhysicsSmoothStepSystem(Scene& s) noexcept
 	{
 		_s = &s;
 	}
 
-	Scene::PhysicsSmoothStepSystem::PhysicsSmoothStepSystem()
+	Scene::PhysicsSmoothStepSystem::PhysicsSmoothStepSystem() noexcept
 	{
 	}
 
-	void Scene::PhysicsSmoothStepSystem::Step(double dt)
+	void Scene::PhysicsSmoothStepSystem::Step(double dt) noexcept
 	{
 		auto lerp = [&](geometry::Vector a, geometry::Vector b, double t){
 			auto clamp = [&](double d){
@@ -38,12 +38,12 @@ namespace physics
 		_accumulator += dt;
 	}
 
-	void Scene::PhysicsSmoothStepSystem::PhysicsUpdate()
+	void Scene::PhysicsSmoothStepSystem::PhysicsUpdate() noexcept
 	{
 		_accumulator = 0;
 	}
 
-	Scene::Scene(const geometry::Vector& gravity, double dt)
+	Scene::Scene(const geometry::Vector& gravity, double dt) noexcept
 	{
 		_smoother = PhysicsSmoothStepSystem(*this);
 		_gravity = gravity;
@@ -57,12 +57,12 @@ namespace physics
 		delete display;
 	}
 
-	const std::vector<std::unique_ptr<Entity>>& Scene::GetEntities() const
+	const std::vector<std::unique_ptr<Entity>>& Scene::GetEntities() const noexcept
 	{
 		return _entities;
 	}
 
-	void Scene::AddEntity(Entity& e)
+	void Scene::AddEntity(Entity& e) noexcept
 	{
 		std::unique_ptr<Entity> ptr(e.Clone());
 		if (ptr->GetCollisionObject().IsDynamic())
@@ -76,7 +76,7 @@ namespace physics
 		_entities.emplace_back(ptr.release());
 	}
 
-	void Scene::RemoveEntity(Entity& e)
+	void Scene::RemoveEntity(Entity& e) noexcept
 	{
 		size_t ind;
 		for (auto& ptr: _entities)
@@ -91,7 +91,7 @@ namespace physics
 		}
 	}
 
-	void Scene::Step(double dt)
+	void Scene::Step(double dt) noexcept
 	{
 		if (dt + _fpsCounter.total > 1000)
 		{

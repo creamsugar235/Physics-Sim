@@ -3,7 +3,7 @@
 
 namespace physics
 {
-	Display::Display(unsigned int width, unsigned int height, std::string& title)
+	Display::Display(unsigned int width, unsigned int height, std::string& title) noexcept
 	{
 		_width = width;
 		_height = height;
@@ -11,13 +11,13 @@ namespace physics
 		_window.create(sf::VideoMode(width, height), title);
 	}
 
-	void Display::Close()
+	void Display::Close() noexcept
 	{
 		if (_window.isOpen())
 			_window.close();
 	}
 
-	void Display::Draw(const Entity& e)
+	void Display::Draw(const Entity& e) noexcept
 	{
 		if (_window.isOpen())
 		{
@@ -25,7 +25,7 @@ namespace physics
 		}
 	}
 
-	void Display::Draw(const sf::Drawable& d)
+	void Display::Draw(const sf::Drawable& d) noexcept
 	{
 		if (_window.isOpen())
 			_window.draw(d);
@@ -56,28 +56,28 @@ namespace physics
 		return _window;
 	}
 
-	void Display::SetHeight(unsigned int h)
+	void Display::SetHeight(unsigned int h) noexcept
 	{
 		_height = h;
 	}
 
-	void Display::SetTitle(std::string windowName)
+	void Display::SetTitle(std::string windowName) noexcept
 	{
 		_title = windowName;
 		_window.setTitle(_title);
 	}
 
-	void Display::SetWidth(unsigned int w)
+	void Display::SetWidth(unsigned int w) noexcept
 	{
 		_width = w;
 	}
 
-	void Display::SetView(sf::View& v)
+	void Display::SetView(sf::View& v) noexcept
 	{
 		_window.setView(v);
 	}
 
-	void Display::Update(const bool& shouldClear)
+	void Display::Update(const bool& shouldClear) noexcept
 	{
 		sf::Event e;
 		while (_window.pollEvent(e))	

@@ -4,7 +4,7 @@
 namespace physics
 {
 	//bouncing
-	void RestitutionSolver:: Solve(std::vector<Collision>& collisions, double dt)
+	void RestitutionSolver:: Solve(std::vector<Collision>& collisions, double dt) noexcept
 	{
 		for (Collision& c: collisions)
 		{
@@ -82,17 +82,17 @@ namespace physics
 		return true;
 	}
 
-	void CollisionWorld::AddObject(CollisionObject* o)
+	void CollisionWorld::AddObject(CollisionObject* o) noexcept
 	{
 		_objects.emplace_back(o);
 	}
 
-	void CollisionWorld::AddSolver(Solver* s)
+	void CollisionWorld::AddSolver(Solver* s) noexcept
 	{
 		_solvers.emplace_back(s);
 	}
 
-	void CollisionWorld::ResolveCollisions(double dt)
+	void CollisionWorld::ResolveCollisions(double dt) noexcept
 	{
 		std::vector<Collision> collisions;
 		for (auto& a: _objects)
@@ -106,7 +106,7 @@ namespace physics
 				if (dynamic_cast<CircleCollider*>(clone))
 				{
 					CircleCollider& cc = dynamic_cast<CircleCollider&>(a->GetCollider());
-					geometry::Point center = cc.center;
+					geometry::Vector center = cc.center;
 					double radius = cc.radius;
 					BoundingBoxA.x = center.x - radius;
 					BoundingBoxA.y = center.y - radius;
@@ -116,8 +116,8 @@ namespace physics
 				else if (dynamic_cast<DynamicCollider*>(clone))
 				{
 					DynamicCollider& dc = dynamic_cast<DynamicCollider&>(a->GetCollider());
-					geometry::Point minimum = getMin(dc.points);
-					geometry::Point maximum = getMax(dc.points);
+					geometry::Vector minimum = getMin(dc.points);
+					geometry::Vector maximum = getMax(dc.points);
 					BoundingBoxA.x = minimum.x;
 					BoundingBoxA.y = minimum.y;
 					BoundingBoxA.width = maximum.x - minimum.x;
@@ -128,7 +128,7 @@ namespace physics
 				if (dynamic_cast<CircleCollider*>(clone))
 				{
 					CircleCollider& cc = dynamic_cast<CircleCollider&>(b->GetCollider());
-					geometry::Point center = cc.center;
+					geometry::Vector center = cc.center;
 					double radius = cc.radius;
 					BoundingBoxB.x = center.x - radius;
 					BoundingBoxB.y = center.y - radius;
@@ -138,8 +138,8 @@ namespace physics
 				else if (dynamic_cast<DynamicCollider*>(clone))
 				{
 					DynamicCollider& dc = dynamic_cast<DynamicCollider&>(b->GetCollider());
-					geometry::Point minimum = getMin(dc.points);
-					geometry::Point maximum = getMax(dc.points);
+					geometry::Vector minimum = getMin(dc.points);
+					geometry::Vector maximum = getMax(dc.points);
 					BoundingBoxB.x = minimum.x;
 					BoundingBoxB.y = minimum.y;
 					BoundingBoxB.width = maximum.x - minimum.x;
@@ -170,7 +170,7 @@ namespace physics
 		}
 	}
 
-	void CollisionWorld::RemoveObject(CollisionObject* o)
+	void CollisionWorld::RemoveObject(CollisionObject* o) noexcept
 	{
 		for (auto p = _objects.begin(); p < _objects.end(); p++)	
 		{
@@ -182,7 +182,7 @@ namespace physics
 		}
 	}
 
-	void CollisionWorld::RemoveSolver(Solver* s)
+	void CollisionWorld::RemoveSolver(Solver* s) noexcept
 	{
 		for (auto p = _solvers.begin(); p < _solvers.end(); p++)
 		{
@@ -194,12 +194,12 @@ namespace physics
 		}
 	}
 
-	void CollisionWorld::SetCollisionCallBack(std::function<void(Collision&, double)>& callback, double dt)
+	void CollisionWorld::SetCollisionCallBack(std::function<void(Collision&, double)>& callback, double dt) noexcept
 	{
 		_onCollision = callback;
 	}
 
-	void CollisionWorld::SendCollisionCallBacks(std::vector<Collision>& collisions, double dt)
+	void CollisionWorld::SendCollisionCallBacks(std::vector<Collision>& collisions, double dt) noexcept
 	{
 		for (Collision& c : collisions)
 		{
@@ -211,7 +211,7 @@ namespace physics
 		}
 	}
 
-	void DynamicsWorld::AddRigidbody(Rigidbody* r)
+	void DynamicsWorld::AddRigidbody(Rigidbody* r) noexcept
 	{
 		if (r->UsesGravity())
 		{
@@ -220,7 +220,7 @@ namespace physics
 		_objects.emplace_back(r);
 	}
 
-	void DynamicsWorld::ApplyGravity()
+	void DynamicsWorld::ApplyGravity() noexcept
 	{
 		for (auto& obj: _objects)
 		{
@@ -230,7 +230,7 @@ namespace physics
 		}
 	}
 
-	void DynamicsWorld::MoveObjects(double dt)
+	void DynamicsWorld::MoveObjects(double dt) noexcept
 	{
 		for (auto& obj: _objects)
 		{
@@ -245,7 +245,7 @@ namespace physics
 		}
 	}
 
-	void DynamicsWorld::Update(double dt)
+	void DynamicsWorld::Update(double dt) noexcept
 	{
 		ApplyGravity();
 		ResolveCollisions(dt);

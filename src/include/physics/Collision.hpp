@@ -2,7 +2,7 @@
 #include <memory>
 #include <initializer_list>
 #include <functional>
-#include "Object.hpp"
+#include "Collider.hpp"
 
 namespace physics
 {
@@ -14,75 +14,7 @@ namespace physics
 	struct DynamicCollider;
 	struct Object;
 	class Solver;
-
-	struct CollisionPoints
-	{
-		geometry::Vector a;
-		geometry::Vector b;
-		geometry::Vector normal;
-		double depth;
-		bool hasCollision = false;
-	};
-
-	struct Collider
-	{
-		virtual Collider* Clone() const = 0;
-		virtual ~Collider();
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const Collider* collider,
-			const Transform& colliderTransform) const = 0;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const CircleCollider* collider,
-			const Transform& colliderTransform) const = 0;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const DynamicCollider* collider,
-			const Transform& colliderTransform) const = 0;
-	};
-
-	struct CircleCollider : public Collider
-	{
-		geometry::Point center;
-		double radius;
-		CircleCollider(const CircleCollider& c);
-		Collider* Clone() const override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const Collider* collider,
-			const Transform& colliderTransform) const override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const CircleCollider* collider,
-			const Transform& colliderTransform) const override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const DynamicCollider* collider,
-			const Transform& colliderTransform) const override;
-	};
-
-	struct DynamicCollider : public Collider
-	{
-		geometry::Point pos;
-		std::vector<geometry::Point> points;
-		DynamicCollider(const DynamicCollider& d);
-		DynamicCollider(geometry::Point pos, geometry::Point a, geometry::Point b, geometry::Point c, std::initializer_list<geometry::Point> extra={});
-		Collider* Clone() const override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const Collider* collider,
-			const Transform& colliderTransform) const override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const CircleCollider* collider,
-			const Transform& colliderTransform) const override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const DynamicCollider* collider,
-			const Transform& colliderTransform) const override;
-	};
-
+	
 	struct Collision
 	{
 		CollisionObject* a = NULL;
@@ -95,28 +27,31 @@ namespace physics
 		protected:
 			Transform _transform;
 			Transform _lastTransform;
-			Collider* _collider;
-			bool _isTrigger;
-			bool _isDynamic;
+			Collider* _collider = NULL;
+			bool _isTrigger = false;
+			bool _isDynamic = false;
 			std::function<void(Collision&, double)> _onCollision;
 		public:
-			CollisionObject(const Transform& t, Collider& c, bool isTrigger);
-			CollisionObject(const CollisionObject& c);
-			virtual ~CollisionObject();
-			virtual CollisionObject* Clone() const;
-			bool IsTrigger() const;
-			bool IsDynamic() const;
-			Collider& GetCollider() const;
-			geometry::Point GetPosition() const;
-			geometry::Quaternion GetRotation() const;
-			const Transform& GetTransform() const;
-			const Transform& GetLastTransform() const;
-			void SetCollider(Collider& c);
-			void SetIsTrigger(bool b);
-			void SetLastTransform(const Transform& t);
-			void SetPosition(const geometry::Point& p);
-			void SetRotation(const geometry::Quaternion& q);
-			void SetTransform(const Transform& t);
+			CollisionObject(const Transform& t, Collider& c, bool isTrigger) noexcept;
+			CollisionObject(const CollisionObject& c) noexcept;
+			virtual ~CollisionObject() noexcept;
+			virtual CollisionObject* Clone() const noexcept;
+			virtual bool operator==(const CollisionObject& other) const noexcept;
+			virtual bool operator!=(const CollisionObject& other) const noexcept;
+			bool IsTrigger() const noexcept;
+			bool IsDynamic() const noexcept;
+			Collider& GetCollider() const noexcept;
+			virtual int GetHash() const noexcept;
+			geometry::Vector GetPosition() const noexcept;
+			geometry::Quaternion GetRotation() const noexcept;
+			const Transform& GetTransform() const noexcept;
+			const Transform& GetLastTransform() const noexcept;
+			void SetCollider(Collider& c) noexcept;
+			void SetIsTrigger(bool b) noexcept;
+			void SetLastTransform(const Transform& t) noexcept;
+			void SetPosition(const geometry::Vector& p) noexcept;
+			void SetRotation(const geometry::Quaternion& q) noexcept;
+			void SetTransform(const Transform& t) noexcept;
 	};
 
 	struct Rigidbody : public CollisionObject
@@ -134,32 +69,29 @@ namespace physics
 		public:
 			Rigidbody(const Transform& t, Collider& c, bool isTrigger, double mass,
 				bool usesGravity=true, double staticFriction=0.5, double dynamicFriction=0.5,
-				double restitution=0.5);
-			Rigidbody(const Rigidbody& r);
-			CollisionObject* Clone() const override;
-			void ApplyForce(geometry::Vector f);
-			double GetDynamicFriction() const;
-			geometry::Vector GetForce() const;
-			geometry::Vector GetGravity() const;
-			double GetMass() const;
-			double GetInvMass() const;
-			double GetRestitution() const;
-			double GetStaticFriction() const;
-			geometry::Vector GetVelocity() const;
-			void SetDynamicFriction(double f);
-			void SetForce(const geometry::Vector& f);
-			void SetGravity(const geometry::Vector& g);
-			void SetMass(double m);
-			void SetRestitution(double r);
-			void SetStaticFriction(double f);
-			void SetUsesGravity(bool b);
-			void SetVelocity(const geometry::Vector& v);
-			bool UsesGravity() const;
-	};
-
-	class Solver
-	{
-		public:
-			virtual void Solve(std::vector<Collision>& collisions, double dt) = 0;
+				double restitution=0.5) noexcept;
+			Rigidbody(const Rigidbody& r) noexcept;
+			virtual bool operator==(const CollisionObject& other) const noexcept override;
+			virtual bool operator!=(const CollisionObject& other) const noexcept override;
+			CollisionObject* Clone() const noexcept override;
+			void ApplyForce(geometry::Vector f) noexcept;
+			double GetDynamicFriction() const noexcept;
+			geometry::Vector GetForce() const noexcept;
+			geometry::Vector GetGravity() const noexcept;
+			virtual int GetHash() const noexcept override;
+			double GetMass() const noexcept;
+			double GetInvMass() const noexcept;
+			double GetRestitution() const noexcept;
+			double GetStaticFriction() const noexcept;
+			geometry::Vector GetVelocity() const noexcept;
+			void SetDynamicFriction(double f) noexcept;
+			void SetForce(const geometry::Vector& f) noexcept;
+			void SetGravity(const geometry::Vector& g) noexcept;
+			void SetMass(double m) noexcept;
+			void SetRestitution(double r) noexcept;
+			void SetStaticFriction(double f) noexcept;
+			void SetUsesGravity(bool b) noexcept;
+			void SetVelocity(const geometry::Vector& v) noexcept;
+			bool UsesGravity() const noexcept;
 	};
 }

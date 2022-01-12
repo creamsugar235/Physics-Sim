@@ -17,4 +17,8 @@ namespace algo
 		const DynamicCollider* b, const Transform& tb
 	);
 
+	bool DynamicColliderVectorIsColliding(
+		const DynamicCollider* a, const Transform& ta,
+		const geometry::Vector& b
+	);
 }

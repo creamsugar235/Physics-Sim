@@ -11,14 +11,14 @@ namespace geometry
 		return sqrt(pow(width, 2) + pow(height, 2));
 	}
 
-	double Calc::Distance(const Point &a, const Point &b)
+	double Calc::Distance(const Vector &a, const Vector &b)
 	{
 		double dis = (pow(b.x - a.x, 2) + pow(b.y - a.y, 2));
 		if (dis < 0) {dis *= -1;}
 		return sqrt(dis);
 	}
 
-	double Calc::GetAngle(const Point &a, const Point &b, const Point &c)
+	double Calc::GetAngle(const Vector &a, const Vector &b, const Vector &c)
 	{
 		double result = atan2(c.y - b.y, c.x - b.x) - atan2(a.y - b.y, a.x - b.x);
 		result = result < 0 ? -result : (M_PI * 2) - result;
@@ -30,20 +30,20 @@ namespace geometry
 		return atan(slope);
 	}	
 
-	double Calc::GetAngle(const Point& center, const Point& point)
+	double Calc::GetAngle(const Vector& center, const Vector& Vector)
 	{
-		return atan2(point.y - center.y, point.x - center.x);
+		return atan2(Vector.y - center.y, Vector.x - center.x);
 	}
 
-	Point Calc::GetPointOnCircle(const Point& center, double radius, double angle)
+	Vector Calc::GetVectorOnCircle(const Vector& center, double radius, double angle)
 	{
 		radius = radius < 0 ? -radius : radius;
 		double x = center.x + (radius * cos(angle));
 		double y = center.y + (radius * sin(angle));
-		return Point(x, y);
+		return Vector(x, y);
 	}
 
-	double Calc::GetSlope(const Point& a, const Point& b)
+	double Calc::GetSlope(const Vector& a, const Vector& b)
 	{
 		if (a.y == b.y || a.x == b.x)
 		{return 0;}
@@ -52,10 +52,10 @@ namespace geometry
 
 	bool Calc::Intersecting(const Line& a, const Line& b, bool isInfLine)
 	{
-		return PointOfIntersect(a, b, isInfLine) != Infinity;
+		return VectorOfIntersect(a, b, isInfLine) != Infinity;
 	}
 
-	Point Calc::PointOfIntersect(const Line& a, const Line& b, bool isInfLine)
+	Vector Calc::VectorOfIntersect(const Line& a, const Line& b, bool isInfLine)
 	{
 		auto det = [](std::tuple<double, double> a, std::tuple<double, double> b) -> double
 		{
@@ -69,7 +69,7 @@ namespace geometry
 		auto d = std::tuple<double, double>(det(std::get<0>(a.ToTuple()), std::get<1>(a.ToTuple())), det(std::get<0>(b.ToTuple()), std::get<1>(b.ToTuple())));
 		double x = det(d, xdiff) / div;
 		double y = det(d, ydiff) / div;
-		Point p = Point(x, y);
+		Vector p = Vector(x, y);
 		if (isInfLine) {return p;}
 		if ((Distance(a.a(), p) + Distance(a.b(), p) == a.length()) && (Distance(b.a(), p) + Distance(b.b(), p) == b.length()))
 		{

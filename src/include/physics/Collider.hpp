@@ -1,12 +1,13 @@
 #pragma once
 #include "../geometry/main.hpp"
+#include "Serializable.hpp"
 namespace physics
 {
 	struct Collider;
 	struct CircleCollider;
 	struct DynamicCollider;
 
-	struct Transform
+	struct Transform : public serialization::Serializable
 	{
 		geometry::Vector position;
 		geometry::Vector scale;
@@ -19,6 +20,9 @@ namespace physics
 		{
 			return !(position == other.position && scale == other.scale && rotation == other.rotation);
 		}
+		std::vector<unsigned char> Serialize() const override;
+		const unsigned long TotalByteSize() const noexcept override;
+		serialization::Serializable* Deserialize(std::vector<byte> v) const override;
 	};
 
 	struct CollisionPoints
@@ -26,7 +30,7 @@ namespace physics
 		geometry::Vector a;
 		geometry::Vector b;
 		geometry::Vector normal;
-		double depth;
+		double depth = 0;
 		bool hasCollision = false;
 		inline bool operator==(const CollisionPoints& other) const noexcept
 		{
@@ -39,7 +43,7 @@ namespace physics
 		}
 	};
 
-	struct Collider
+	struct Collider : public serialization::Serializable
 	{
 		virtual Collider* Clone() const = 0;
 		virtual ~Collider();
@@ -81,6 +85,9 @@ namespace physics
 			const Transform& transform,
 			const DynamicCollider* collider,
 			const Transform& colliderTransform) const noexcept override;
+		std::vector<unsigned char> Serialize() const override;
+		const unsigned long TotalByteSize() const noexcept override;
+		serialization::Serializable* Deserialize(std::vector<byte> v) const override;
 	};
 
 	struct DynamicCollider : public Collider
@@ -105,5 +112,8 @@ namespace physics
 			const Transform& transform,
 			const DynamicCollider* collider,
 			const Transform& colliderTransform) const noexcept override;
+		std::vector<unsigned char> Serialize() const override;
+		const unsigned long TotalByteSize() const noexcept override;
+		serialization::Serializable* Deserialize(std::vector<byte> v) const override;
 	};
 }

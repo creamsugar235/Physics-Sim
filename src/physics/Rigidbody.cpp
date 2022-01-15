@@ -163,4 +163,16 @@ namespace physics
 	{
 		return _usesGravity;
 	}
+	std::vector<unsigned char> Rigidbody::Serialize() const
+	{
+		return std::vector<unsigned char>();
+	}
+	serialization::Serializable* Rigidbody::Deserialize(std::vector<unsigned char> v) const
+	{
+		return NULL;
+	}
+	const unsigned long Rigidbody::TotalByteSize() const noexcept
+	{
+		return 0ul;
+	}
 }

@@ -7,18 +7,6 @@
 namespace physics
 {
 	class Scene;
-	struct Scene::Counter;
-	struct SceneState
-	{
-		geometry::Vector _gravity;
-		SmootherAccumulator = 0;
-		Scene::Counter fpsCounter;
-		Scene::Counter physicsUpdateCounter;
-		double dt;
-		bool debugDraw;
-		std::vector<
-	};
-
 
 	class Scene
 	{
@@ -64,4 +52,14 @@ namespace physics
 			unsigned short physicsUpdateFrequency = 60;
 			Display* display = NULL;
 	};
+	/*struct SceneState
+	{
+		geometry::Vector _gravity;
+		SmootherAccumulator = 0;
+		Scene::Counter fpsCounter;
+		Scene::Counter physicsUpdateCounter;
+		double dt;
+		bool debugDraw;
+		//std::vector<
+	};*/
 }

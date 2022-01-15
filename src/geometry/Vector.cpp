@@ -4,6 +4,8 @@ namespace geometry
 {
 	Vector::Vector()
 	{
+		x = 0;
+		y = 0;
 	}
 
 	Vector::Vector(double x, double y)

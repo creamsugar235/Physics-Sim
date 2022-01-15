@@ -1,5 +1,6 @@
 #include "../include/physics/Entity.hpp"
 #include <iostream>
+#include <cstring>
 namespace physics
 {
 	Entity::Entity(const std::string& name, CollisionObject& c, const Transform& t, const sf::Sprite& s) noexcept
@@ -7,7 +8,10 @@ namespace physics
 		_name = name;
 		_collider = c.Clone();
 		_sprite = s;
-		_texture = *s.getTexture();
+		if (s.getTexture())
+		{
+			_texture = *s.getTexture();
+		}
 		_sprite.setTexture(_texture);
 		_transform = t;
 	}
@@ -17,7 +21,10 @@ namespace physics
 		_name = e.GetName();
 		_collider = e.GetCollisionObject().Clone();
 		_sprite = e.GetSprite();
-		_texture = *e.GetSprite().getTexture();
+		if (e.GetSprite().getTexture())
+		{
+			_texture = *e.GetSprite().getTexture();
+		}
 		_sprite.setTexture(_texture);
 		_transform = e.GetTransform();
 	}
@@ -63,6 +70,60 @@ namespace physics
 	Transform Entity::GetTransform() const noexcept
 	{
 		return _transform;
+	}
+
+	std::vector<unsigned char> Entity::Serialize() const
+	{
+		std::vector<byte> v = _collider->Serialize();
+		v.push_back(0xff);
+		v.push_back(0x00);
+		for (const byte& b: _transform.Serialize())
+		{
+			v.push_back(b);
+		}
+		v.push_back(0xff);
+		v.push_back(0x00);
+		//totally safe ;)
+		const byte* iter=(const byte*)&_texture;
+		for (unsigned i = 0; i < sizeof(_texture); i++)
+		{
+			v.push_back(*(iter + i));
+		}
+		v.push_back(0xff);
+		v.push_back(0x00);
+		for (const char c: _name)
+		{
+			v.push_back(c);
+		}
+		v.push_back(0xff);
+		v.push_back(0x00);
+		v.push_back(ClassCode);
+		v.push_back(0xff);
+		v.push_back(0xff);
+		v.push_back(0xff);
+		return v;
+	}
+
+	serialization::Serializable* Entity::Deserialize(std::vector<byte> v) const
+	{
+		Entity* e = new Entity(*this);
+		CircleCollider cClass;
+		int nullCount = 0;
+		std::vector<byte> ColliderArr;
+		for (const byte& b: v)
+		{
+			if (b == 0x00)
+				nullCount++;
+			if (nullCount > 1)
+				break;
+			ColliderArr.push_back(b);
+		}
+		//Collider* c = cClass.Deserialize();
+		return e;
+	}
+	const unsigned long Entity::TotalByteSize() const noexcept
+	{
+		return 0ul;
 	}
 
 	void Entity::SetCollisionObject(CollisionObject& c) noexcept

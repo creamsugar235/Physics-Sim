@@ -2,56 +2,61 @@
 #include <cmath>
 #include <vector>
 #include <tuple>
-
+typedef double f64;
+typedef float f32;
+typedef unsigned char uchar;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+typedef unsigned long long ulonglong;
 namespace geometry
 {
 	class Line;
 	class Vector
 	{
 		public:
-			double x;
-			double y;
+			f64 x;
+			f64 y;
 			Vector();
-			Vector(double x, double y);
-			double magnitude() const;
+			Vector(f64 x, f64 y);
+			f64 magnitude() const;
 			void Normalize();
 			Vector Normalized() const;
-			double Cross(const Vector& v) const noexcept;
-			static Vector Cross(const Vector& v, const double& s);
-			static Vector Cross(const double& s, const Vector& v);
-			double Dot(const Vector& v) const;
+			f64 Cross(const Vector& v) const noexcept;
+			static Vector Cross(const Vector& v, const f64& s);
+			static Vector Cross(const f64& s, const Vector& v);
+			f64 Dot(const Vector& v) const;
 			Vector operator-() const noexcept;
 			Vector operator+() const noexcept;
 			bool operator==(const Vector& v) const noexcept;
 			bool operator!=(const Vector& v) const noexcept;
 			Vector operator-(const Vector& v) const noexcept;
-			Vector operator-(const double& d) const noexcept;
+			Vector operator-(const f64& d) const noexcept;
 			void operator-=(const Vector& v) noexcept;
-			void operator-=(const double& d) noexcept;
+			void operator-=(const f64& d) noexcept;
 			Vector operator+(const Vector& v) const noexcept;
-			Vector operator+(const double& d) const noexcept;
+			Vector operator+(const f64& d) const noexcept;
 			void operator+=(const Vector& v) noexcept;
-			void operator+=(const double& d) noexcept;
+			void operator+=(const f64& d) noexcept;
 			Vector operator/(const Vector& v) const noexcept;
-			Vector operator/(const double& d) const noexcept;
+			Vector operator/(const f64& d) const noexcept;
 			void operator/=(const Vector& v) noexcept;
-			void operator/=(const double& d) noexcept;
+			void operator/=(const f64& d) noexcept;
 			Vector operator*(const Vector& v) const noexcept;
-			Vector operator*(const double& d) const noexcept;
+			Vector operator*(const f64& d) const noexcept;
 			void operator*=(const Vector& v) noexcept;
-			void operator*=(const double& d) noexcept;
+			void operator*=(const f64& d) noexcept;
 			bool operator^(Line l) const;
 			bool operator<(const Vector& v) const noexcept;
 			bool operator>(const Vector& v) const noexcept;
 			Vector operator()() const;
-			void Move(double offsetX, double offsetY) noexcept;
+			void Move(f64 offsetX, f64 offsetY) noexcept;
 			int Quadrant(const Vector& p) const noexcept;
-			void Rotate(const Vector& p, double angle) noexcept;
+			void Rotate(const Vector& p, f64 angle) noexcept;
 			std::string ToString() const noexcept;
-			std::tuple<double, double> ToTuple() const noexcept;
+			std::tuple<f64, f64> ToTuple() const noexcept;
 	};
-	Vector operator*(const double& d, const Vector& v) noexcept;
-	Vector operator+(const double& d, const Vector& v) noexcept;
+	Vector operator*(const f64& d, const Vector& v) noexcept;
+	Vector operator+(const f64& d, const Vector& v) noexcept;
 #define Origin Vector(0, 0)
-#define Infinity Vector(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())
+#define Infinity Vector(std::numeric_limits<f64>::infinity(), std::numeric_limits<f64>::infinity())
 }

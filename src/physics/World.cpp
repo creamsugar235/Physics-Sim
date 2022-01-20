@@ -4,18 +4,18 @@
 namespace physics
 {
 	//bouncing
-	void RestitutionSolver:: Solve(std::vector<Collision>& collisions, double dt) noexcept
+	void RestitutionSolver:: Solve(std::vector<Collision>& collisions, f64 dt) noexcept
 	{
 		for (Collision& c: collisions)
 		{
 			if (!c.a->IsDynamic() || !c.b->IsDynamic()) continue;
 			Rigidbody* a = (Rigidbody*) c.a;
 			Rigidbody* b = (Rigidbody*) c.b;
-			double e = std::min(a->GetRestitution(), b->GetRestitution());
+			f64 e = std::min(a->GetRestitution(), b->GetRestitution());
 			geometry::Vector rv = b->GetVelocity() - a->GetVelocity();
-			double velAlongNormal = rv.Dot(c.points.normal);
+			f64 velAlongNormal = rv.Dot(c.points.normal);
 			if (velAlongNormal > 0) continue;
-			double j = -(1 + e) * velAlongNormal;
+			f64 j = -(1 + e) * velAlongNormal;
 			j /= a->GetInvMass() + b->GetInvMass();
 			geometry::Vector impulse = c.points.normal * j;
 			geometry::Vector aVel = a->GetVelocity();
@@ -67,10 +67,10 @@ namespace physics
 
 	struct Square
 	{
-		double x = 0;
-		double y = 0;
-		double width = 0;
-		double height = 0;
+		f64 x = 0;
+		f64 y = 0;
+		f64 width = 0;
+		f64 height = 0;
 	};
 
 	bool SquareOverLaps(const Square& a, const Square& b)
@@ -92,7 +92,7 @@ namespace physics
 		_solvers.emplace_back(s);
 	}
 
-	void CollisionWorld::ResolveCollisions(double dt) noexcept
+	void CollisionWorld::ResolveCollisions(f64 dt) noexcept
 	{
 		std::vector<Collision> collisions;
 		for (auto& a: _objects)
@@ -107,7 +107,7 @@ namespace physics
 				{
 					CircleCollider& cc = dynamic_cast<CircleCollider&>(a->GetCollider());
 					geometry::Vector center = cc.center;
-					double radius = cc.radius;
+					f64 radius = cc.radius;
 					BoundingBoxA.x = center.x - radius;
 					BoundingBoxA.y = center.y - radius;
 					BoundingBoxA.width = radius * 2;
@@ -129,7 +129,7 @@ namespace physics
 				{
 					CircleCollider& cc = dynamic_cast<CircleCollider&>(b->GetCollider());
 					geometry::Vector center = cc.center;
-					double radius = cc.radius;
+					f64 radius = cc.radius;
 					BoundingBoxB.x = center.x - radius;
 					BoundingBoxB.y = center.y - radius;
 					BoundingBoxB.width = radius * 2;
@@ -194,12 +194,12 @@ namespace physics
 		}
 	}
 
-	void CollisionWorld::SetCollisionCallBack(std::function<void(Collision&, double)>& callback, double dt) noexcept
+	void CollisionWorld::SetCollisionCallBack(std::function<void(Collision&, f64)>& callback, f64 dt) noexcept
 	{
 		_onCollision = callback;
 	}
 
-	void CollisionWorld::SendCollisionCallBacks(std::vector<Collision>& collisions, double dt) noexcept
+	void CollisionWorld::SendCollisionCallBacks(std::vector<Collision>& collisions, f64 dt) noexcept
 	{
 		for (Collision& c : collisions)
 		{
@@ -230,7 +230,7 @@ namespace physics
 		}
 	}
 
-	void DynamicsWorld::MoveObjects(double dt) noexcept
+	void DynamicsWorld::MoveObjects(f64 dt) noexcept
 	{
 		for (auto& obj: _objects)
 		{
@@ -245,7 +245,7 @@ namespace physics
 		}
 	}
 
-	void DynamicsWorld::Update(double dt) noexcept
+	void DynamicsWorld::Update(f64 dt) noexcept
 	{
 		ApplyGravity();
 		ResolveCollisions(dt);

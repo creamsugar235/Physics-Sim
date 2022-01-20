@@ -14,6 +14,8 @@ namespace physics::serialization
 	{
 		public:
 			typedef unsigned char byte;
+			typedef unsigned char* writer;
+			typedef const unsigned char* reader;
 			unsigned long classCode;
 			std::map<unsigned long, Serializable*> deserializerMaps;
 			virtual const unsigned long TotalByteSize() const noexcept = 0;
@@ -21,7 +23,7 @@ namespace physics::serialization
 			virtual Serializable* Deserialize(std::vector<byte> v) const = 0;
 			virtual ~Serializable()
 			{
-				for (auto& iter: deserializerMaps) {delete iter->second;}
+				for (auto& iter: deserializerMaps) {delete iter.second;}
 			}
 	};
 }

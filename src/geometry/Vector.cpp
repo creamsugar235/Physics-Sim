@@ -1,4 +1,6 @@
-#include "../include/geometry/main.hpp"
+#include "../include/geometry/Calc.hpp"
+#include "../include/geometry/Line.hpp"
+#include "../include/geometry/Vector.hpp"
 
 namespace geometry
 {
@@ -8,40 +10,40 @@ namespace geometry
 		y = 0;
 	}
 
-	Vector::Vector(double x, double y)
+	Vector::Vector(f64 x, f64 y)
 	{
 		this->x = x;
 		this->y = y;
 	}
 
-	double Vector::Cross(const Vector& v) const noexcept
+	f64 Vector::Cross(const Vector& v) const noexcept
 	{
 		return x * v.y - y * v.x;
 	}
 
-	Vector Vector::Cross(const Vector& v, const double& s)
+	Vector Vector::Cross(const Vector& v, const f64& s)
 	{
 		return Vector(s * v.y, -s * v.x);
 	}
 
-	Vector Vector::Cross(const double& s, const Vector& v)
+	Vector Vector::Cross(const f64& s, const Vector& v)
 	{
 		return Vector(-s * v.y, s * v.x);
 	}
 
-	double Vector::Dot(const Vector& v) const
+	f64 Vector::Dot(const Vector& v) const
 	{
 		return x * v.x + y * v.y;
 	}
 
-	double Vector::magnitude() const
+	f64 Vector::magnitude() const
 	{
 		return x * x + y * y;
 	}
 
 	void Vector::Normalize()
 	{
-		double mag = magnitude();
+		f64 mag = magnitude();
 		if (mag > 0.00001)
 			*this = *this / mag;
 		else
@@ -55,12 +57,12 @@ namespace geometry
 		return v;
 	}
 
-	Vector operator*(const double& d, const Vector& v) noexcept
+	Vector operator*(const f64& d, const Vector& v) noexcept
 	{
 		return Vector(d * v.x, d * v.y);
 	}
 
-	Vector operator+(const double& d, const Vector& v) noexcept
+	Vector operator+(const f64& d, const Vector& v) noexcept
 	{
 		return Vector(d + v.x, d + v.y);
 	}
@@ -93,7 +95,7 @@ namespace geometry
 		return result;
 	}
 
-	Vector Vector::operator+(const double& d) const noexcept
+	Vector Vector::operator+(const f64& d) const noexcept
 	{
 		Vector result(*this);
 		result.x += d;
@@ -107,7 +109,7 @@ namespace geometry
 		y += v.y;
 	}
 
-	void Vector::operator+=(const double& d) noexcept
+	void Vector::operator+=(const f64& d) noexcept
 	{
 		x += d;
 		y += d;
@@ -121,7 +123,7 @@ namespace geometry
 		return result;
 	}
 
-	Vector Vector::operator-(const double& d) const noexcept
+	Vector Vector::operator-(const f64& d) const noexcept
 	{
 		Vector result(*this);
 		result.x -= d;
@@ -135,7 +137,7 @@ namespace geometry
 		y -= v.y;
 	}
 
-	void Vector::operator-=(const double& d) noexcept
+	void Vector::operator-=(const f64& d) noexcept
 	{
 		x -= d;
 		y -= d;
@@ -149,7 +151,7 @@ namespace geometry
 		return result;
 	}
 
-	Vector Vector::operator*(const double& d) const noexcept
+	Vector Vector::operator*(const f64& d) const noexcept
 	{
 		Vector result(*this);
 		result.x *= d;
@@ -163,7 +165,7 @@ namespace geometry
 		y *= v.y;
 	}
 
-	void Vector::operator*=(const double& d) noexcept
+	void Vector::operator*=(const f64& d) noexcept
 	{
 		x *= d;
 		y *= d;
@@ -177,7 +179,7 @@ namespace geometry
 		return result;
 	}
 
-	Vector Vector::operator/(const double& d) const noexcept
+	Vector Vector::operator/(const f64& d) const noexcept
 	{
 		Vector result(*this);
 		result.x /= d;
@@ -191,7 +193,7 @@ namespace geometry
 		y /= v.y;
 	}
 
-	void Vector::operator/=(const double& d) noexcept
+	void Vector::operator/=(const f64& d) noexcept
 	{
 		x /= d;
 		y /= d;
@@ -217,7 +219,7 @@ namespace geometry
 		return Vector(x, y);
 	}
 
-	void Vector::Move(double offsetX, double offsetY) noexcept
+	void Vector::Move(f64 offsetX, f64 offsetY) noexcept
 	{
 		this->x += offsetX;
 		this->y += offsetY;
@@ -252,13 +254,13 @@ namespace geometry
 		return 0;
 	}
 
-	void Vector::Rotate(const Vector& p, double angle) noexcept
+	void Vector::Rotate(const Vector& p, f64 angle) noexcept
 	{
-		double currentAngle = Calc::GetAngle(p, *this);
+		f64 currentAngle = Calc::GetAngle(p, *this);
 		angle += currentAngle;
 		if (angle < 0) {angle += (M_PI * 2);}
 		if (angle > (M_PI) * 2) {angle -= M_PI;}
-		double distance = Calc::Distance(*this, p);
+		f64 distance = Calc::Distance(*this, p);
 		Vector v2 = Calc::GetVectorOnCircle(p, distance, angle);
 		this->x = v2.x;
 		this->y = v2.y;
@@ -271,8 +273,8 @@ namespace geometry
 		return "(" + strX + ", " + strY + ")";
 	}
 	
-	std::tuple<double, double> Vector::ToTuple() const noexcept
+	std::tuple<f64, f64> Vector::ToTuple() const noexcept
 	{
-		return std::tuple<double, double>(this->x, this->y);
+		return std::tuple<f64, f64>(this->x, this->y);
 	}
 }

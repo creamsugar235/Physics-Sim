@@ -14,14 +14,14 @@ namespace geometry
 		z = p.z;
 	}
 
-	Point3D::Point3D(double x, double y, double z)
+	Point3D::Point3D(f64 x, f64 y, f64 z)
 	{
 		this->x = x;
 		this->y = y;
 		this->z = z;
 	}
 
-	void Point3D::Move(double offsetX, double offsetY, double offsetZ)
+	void Point3D::Move(f64 offsetX, f64 offsetY, f64 offsetZ)
 	{
 		x += offsetX;
 		y += offsetY;
@@ -37,7 +37,7 @@ namespace geometry
 		w = 0;
 	}
 
-	Quaternion::Quaternion(const Point3D& axis, double angle)
+	Quaternion::Quaternion(const Point3D& axis, f64 angle)
 	{
 		w = cos(angle / 2);
 		x = axis.x * sin(angle / 2);
@@ -45,7 +45,7 @@ namespace geometry
 		z = axis.z * sin(angle / 2);
 	}
 
-	Quaternion::Quaternion(double x, double y, double z, double w)
+	Quaternion::Quaternion(f64 x, f64 y, f64 z, f64 w)
 	{
 		this->x = x;
 		this->y = y;

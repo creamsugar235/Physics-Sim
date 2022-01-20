@@ -12,10 +12,10 @@ namespace physics
 	{
 	}
 
-	void Scene::PhysicsSmoothStepSystem::Step(double dt) noexcept
+	void Scene::PhysicsSmoothStepSystem::Step(f64 dt) noexcept
 	{
-		auto lerp = [&](geometry::Vector a, geometry::Vector b, double t){
-			auto clamp = [&](double d){
+		auto lerp = [&](geometry::Vector a, geometry::Vector b, f64 t){
+			auto clamp = [&](f64 d){
 				if (d < 0)
 					return 0.0;
 				else if (d > 1)
@@ -43,7 +43,7 @@ namespace physics
 		_accumulator = 0;
 	}
 
-	Scene::Scene(const geometry::Vector& gravity, double dt) noexcept
+	Scene::Scene(const geometry::Vector& gravity, f64 dt) noexcept
 	{
 		_smoother = PhysicsSmoothStepSystem(*this);
 		_gravity = gravity;
@@ -91,13 +91,13 @@ namespace physics
 		}
 	}
 
-	void Scene::Step(double dt) noexcept
+	void Scene::Step(f64 dt) noexcept
 	{
 		if (dt + _fpsCounter.total > 1000)
 		{
 			if (_fpsCounter.loopsPerSecond.size() > 60)
 				_fpsCounter.loopsPerSecond.clear();
-			_fpsCounter.loopsPerSecond.push_back((double)_fpsCounter.loops);
+			_fpsCounter.loopsPerSecond.push_back((f64)_fpsCounter.loops);
 			_fpsCounter.total = dt;
 			_fpsCounter.loops = 0;
 		}

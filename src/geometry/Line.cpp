@@ -37,23 +37,23 @@ namespace geometry
 		return !(this->a == l.a() && this->b == l.b());
 	}
 
-	double Line::angle() const
+	f64 Line::angle() const
 	{
 		return _angle;
 	}
 
-	Vector Line::GetVectorAlongLine(double distance, bool startFromA) const
+	Vector Line::GetVectorAlongLine(f64 distance, bool startFromA) const
 	{
 		Vector begin = startFromA ? this->a : this->b;
 		return Calc::GetVectorOnCircle(begin, distance, this->_angle);
 	}
 
-	double Line::length() const
+	f64 Line::length() const
 	{
 		return this->_length;
 	}
 
-	void Line::Move(double offsetX, double offsetY)
+	void Line::Move(f64 offsetX, f64 offsetY)
 	{
 		this->a.Move(offsetX, offsetY);
 		this->b.Move(offsetX, offsetY);
@@ -64,12 +64,12 @@ namespace geometry
 		return "(" + this->a.ToString() + ", " + this->b.ToString() + ")";
 	}
 
-	std::tuple<std::tuple<double, double>, std::tuple<double, double>> Line::ToTuple() const
+	std::tuple<std::tuple<f64, f64>, std::tuple<f64, f64>> Line::ToTuple() const
 	{
-		return std::tuple<std::tuple<double, double>, std::tuple<double, double>>(this->a.ToTuple(), this->b.ToTuple());
+		return std::tuple<std::tuple<f64, f64>, std::tuple<f64, f64>>(this->a.ToTuple(), this->b.ToTuple());
 	}
 
-	void Line::Rotate(const Vector& pivot, double angle)
+	void Line::Rotate(const Vector& pivot, f64 angle)
 	{
 		this->a.Rotate(pivot, angle);
 		this->b.Rotate(pivot, angle);

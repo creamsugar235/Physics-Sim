@@ -48,7 +48,7 @@ int main(int argc, char** args)
 		file2.seekg(0);
 		file2.read((char*)&b, sizeof(b));
 		file2.close();*/
-		double d = 15000;
+		/*double d = 15000;
 		std::vector<unsigned char> v;
 		const unsigned char* c= (const unsigned char*) &d;
 		for (int i = 0; i < sizeof(double); i++)
@@ -68,7 +68,14 @@ int main(int argc, char** args)
 			c2[i] = UC;
 			i++;
 		}
-		std::cout<<d2<<std::endl;
+		std::cout<<d2<<std::endl;*/
+		int arr[20] = {};
+		for (int i = 0; i < 20; i++)
+			arr[i] = i;
+		for (int i = 0; i < 20; i++)
+		{
+			std::cout<<arr[i]++<<"\n";
+		}
 		//std::cout<<b.d<<" "<<b.c<<" "<<b.ints.at(0)<<"\n";
 	}
 	return 0;

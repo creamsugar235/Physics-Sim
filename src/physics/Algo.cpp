@@ -10,7 +10,7 @@ namespace algo
 	)
 	{
 		CollisionPoints c;	
-		double r = geometry::Calc::Distance(a->center + ta.position, b->center + tb.position);
+		f64 r = geometry::Calc::Distance(a->center + ta.position, b->center + tb.position);
 		// If the sum of their radii is greater than or equal to the distance between their centers
 		if (a->radius + b->radius >= r)
 		{
@@ -49,13 +49,13 @@ namespace algo
 			{
 				// find the two Vectors of intersects between a circle and a line
 				Vector d((l.b.x - l.a.x) / l.length(), (l.b.y - l.a.y) / l.length());
-				double t = d.x * (b->center.x - l.a.x) + d.y * (b->center.y - l.a.y);
+				f64 t = d.x * (b->center.x - l.a.x) + d.y * (b->center.y - l.a.y);
 				Vector e(t * d.x + l.a.x, t * d.y + l.a.y);
-				double dis = Calc::Distance(e, b->center);
+				f64 dis = Calc::Distance(e, b->center);
 				// if intersecting
 				if (dis < b->radius)
 				{
-					double dt = sqrt(pow(b->radius, 2) - pow(dis, 2));
+					f64 dt = sqrt(pow(b->radius, 2) - pow(dis, 2));
 					Vector f((t - dt) * d.x + l.a.x, (t - dt) * d.y + l.a.y);
 					Vector g((t + dt) * d.x + l.a.x, (t + dt) * d.y + l.a.y);
 					listOfIntersections.push_back(Line(f, g).GetVectorAlongLine(Calc::Distance(f, g) / 2));
@@ -98,7 +98,7 @@ namespace algo
 			{
 				points.push_back(first);
 			}
-			double twiceArea = 0, x = 0, y = 0, f = 0;
+			f64 twiceArea = 0, x = 0, y = 0, f = 0;
 			geometry::Vector p1, p2;
 			// absolutely no clue what this does, it just works lol
 			for (size_t i = 0, j = points.size() - 1; i < points.size(); j=i++)

@@ -3,9 +3,31 @@
 #include "Serializable.hpp"
 namespace physics
 {
+	struct Transform;
+	struct BoxCollider;
 	struct Collider;
 	struct CircleCollider;
 	struct DynamicCollider;
+	struct MeshCollider;
+	struct CollisionPoints;
+
+	struct CollisionPoints
+	{
+		geometry::Vector a;
+		geometry::Vector b;
+		geometry::Vector normal;
+		f64 depth = 0;
+		bool hasCollision = false;
+		inline bool operator==(const CollisionPoints& other) const noexcept
+		{
+			return a == other.a && b == other.b && normal == other.normal && hasCollision == other.hasCollision;
+		}
+
+		inline bool operator!=(const CollisionPoints& other) const noexcept
+		{
+			return !(a == other.a && b == other.b && normal == other.normal && hasCollision == other.hasCollision);
+		}
+	};
 
 	struct Transform : public serialization::Serializable
 	{
@@ -23,24 +45,6 @@ namespace physics
 		std::vector<unsigned char> Serialize() const override;
 		const unsigned long TotalByteSize() const noexcept override;
 		serialization::Serializable* Deserialize(std::vector<byte> v) const override;
-	};
-
-	struct CollisionPoints
-	{
-		geometry::Vector a;
-		geometry::Vector b;
-		geometry::Vector normal;
-		double depth = 0;
-		bool hasCollision = false;
-		inline bool operator==(const CollisionPoints& other) const noexcept
-		{
-			return a == other.a && b == other.b && normal == other.normal && hasCollision == other.hasCollision;
-		}
-
-		inline bool operator!=(const CollisionPoints& other) const noexcept
-		{
-			return !(a == other.a && b == other.b && normal == other.normal && hasCollision == other.hasCollision);
-		}
 	};
 
 	struct Collider : public serialization::Serializable
@@ -61,59 +65,13 @@ namespace physics
 			const Transform& transform,
 			const DynamicCollider* collider,
 			const Transform& colliderTransform) const noexcept = 0;
-	};
-
-	struct CircleCollider : public Collider
-	{
-		geometry::Vector center = geometry::Vector();
-		double radius = 0;
-		CircleCollider();
-		CircleCollider(geometry::Vector center, double radius);
-		CircleCollider(const CircleCollider& c);
-		virtual bool operator==(const Collider& other) const noexcept override;
-		virtual bool operator!=(const Collider& other) const noexcept override;
-		Collider* Clone() const override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
-			const Collider* collider,
-			const Transform& colliderTransform) const noexcept override;
+			const BoxCollider* collider,
+			const Transform& colliderTransform) const noexcept = 0;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
-			const CircleCollider* collider,
-			const Transform& colliderTransform) const noexcept override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const DynamicCollider* collider,
-			const Transform& colliderTransform) const noexcept override;
-		std::vector<unsigned char> Serialize() const override;
-		const unsigned long TotalByteSize() const noexcept override;
-		serialization::Serializable* Deserialize(std::vector<byte> v) const override;
-	};
-
-	struct DynamicCollider : public Collider
-	{
-		geometry::Vector pos;
-		std::vector<geometry::Vector> points;
-		DynamicCollider();
-		DynamicCollider(const DynamicCollider& d) noexcept;
-		DynamicCollider(geometry::Vector pos, geometry::Vector a, geometry::Vector b, geometry::Vector c, std::initializer_list<geometry::Vector> extra={}) noexcept;
-		bool operator==(const Collider& other) const noexcept override;
-		bool operator!=(const Collider& other) const noexcept override;
-		Collider* Clone() const override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const Collider* collider,
-			const Transform& colliderTransform) const noexcept override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const CircleCollider* collider,
-			const Transform& colliderTransform) const noexcept override;
-		virtual CollisionPoints TestCollision(
-			const Transform& transform,
-			const DynamicCollider* collider,
-			const Transform& colliderTransform) const noexcept override;
-		std::vector<unsigned char> Serialize() const override;
-		const unsigned long TotalByteSize() const noexcept override;
-		serialization::Serializable* Deserialize(std::vector<byte> v) const override;
+			const MeshCollider* collider,
+			const Transform& colliderTransform) const noexcept = 0;
 	};
 }

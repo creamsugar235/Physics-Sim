@@ -1,7 +1,6 @@
 #pragma once
 #include <ctime>
 #include <chrono>
-#include "Global.hpp"
 namespace physics
 {
 	class StopWatch;

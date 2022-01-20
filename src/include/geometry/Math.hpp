@@ -1,6 +1,13 @@
 #pragma once
 #include <tuple>
 #include <exception>
+#include <type_traits>
+typedef double f64;
+typedef float f32;
+typedef unsigned char uchar;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+typedef unsigned long long ulonglong;
 namespace geometry
 {
 	enum ShapeType
@@ -26,27 +33,27 @@ namespace geometry
 	class Point3D
 	{
 		public:
-			double x = 0;
-			double y = 0;
-			double z = 0;
+			f64 x = 0;
+			f64 y = 0;
+			f64 z = 0;
 			Point3D();
 			Point3D(const Point3D& p);
-			Point3D(double x, double y, double z);
-			void Move(double offsetX, double offsetY, double offsetZ);
+			Point3D(f64 x, f64 y, f64 z);
+			void Move(f64 offsetX, f64 offsetY, f64 offsetZ);
 	};
 
 	struct Quaternion
 	{
 		public:
-			double x;
-			double y;
-			double z;
-			double w;
+			f64 x;
+			f64 y;
+			f64 z;
+			f64 w;
 			Quaternion();
-			Quaternion(const Point3D& axis, double angle);
-			Quaternion(double x, double y, double z, double w);
+			Quaternion(const Point3D& axis, f64 angle);
+			Quaternion(f64 x, f64 y, f64 z, f64 w);
 			Quaternion operator*(const Quaternion& other) const noexcept;
-			std::tuple<std::tuple<double, double, double>> ToRotationMatrix() const;
+			std::tuple<std::tuple<f64, f64, f64>> ToRotationMatrix() const;
 			bool operator==(const Quaternion& other) const noexcept;
 			bool operator!=(const Quaternion& other) const noexcept;
 	};

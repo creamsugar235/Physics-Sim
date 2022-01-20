@@ -1,7 +1,7 @@
 #pragma once
 #include "../SFML/Graphics.hpp"
 #include "Collision.hpp"
-#include "Serializable.hpp"
+#include "CollisionObject.hpp"
 #include <memory>
 
 namespace physics

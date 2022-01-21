@@ -3,6 +3,10 @@
 
 namespace physics
 {
+	Rigidbody::Rigidbody() noexcept: CollisionObject()
+	{
+	}
+
 	Rigidbody::Rigidbody(const Transform& t, Collider& c, bool isTrigger, f64 mass,
 		bool usesGravity, f64 staticFriction, f64 dynamicFriction,
 		f64 restitution) noexcept : CollisionObject(t, c, isTrigger)
@@ -64,6 +68,11 @@ namespace physics
 		return new Rigidbody(*this);
 	}
 
+	geometry::Vector Rigidbody::GetDrag() const noexcept
+	{
+		return _drag;
+	}
+
 	f64 Rigidbody::GetDynamicFriction() const noexcept
 	{
 		return _dynamicFriction;
@@ -114,6 +123,10 @@ namespace physics
 	geometry::Vector Rigidbody::GetVelocity() const noexcept
 	{
 		return _velocity;
+	}
+	void Rigidbody::SetDrag(const geometry::Vector& d) noexcept
+	{
+		_drag = d;
 	}
 	void Rigidbody::SetDynamicFriction(f64 f) noexcept
 	{

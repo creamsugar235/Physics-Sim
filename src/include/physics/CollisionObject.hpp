@@ -23,6 +23,7 @@ namespace physics
 			bool _isDynamic = false;
 			std::function<void(Collision&, f64)> _onCollision;
 		public:
+			CollisionObject() noexcept;
 			CollisionObject(const Transform& t, Collider& c, bool isTrigger) noexcept;
 			CollisionObject(const CollisionObject& c) noexcept;
 			virtual ~CollisionObject() noexcept;

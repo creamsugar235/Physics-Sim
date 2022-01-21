@@ -40,7 +40,7 @@ namespace physics
 			geometry::Vector _gravity = geometry::Vector(0, -9.81);
 		public:
 			void AddRigidbody(Rigidbody* rb) noexcept;
-			void ApplyGravity() noexcept;
+			void ApplyGravity(f64 dt) noexcept;
 			void MoveObjects(f64 dt) noexcept;
 			void Update(f64 dt) noexcept;
 	};

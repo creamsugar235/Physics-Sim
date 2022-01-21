@@ -220,13 +220,13 @@ namespace physics
 		_objects.emplace_back(r);
 	}
 
-	void DynamicsWorld::ApplyGravity() noexcept
+	void DynamicsWorld::ApplyGravity(f64 dt) noexcept
 	{
 		for (auto& obj: _objects)
 		{
 			if (!obj->IsDynamic()) continue;
 			Rigidbody* rigidbody = (Rigidbody*) obj;
-			rigidbody->ApplyForce(rigidbody->GetGravity() * rigidbody->GetMass());
+			rigidbody->ApplyForce(rigidbody->GetGravity() * rigidbody->GetMass() * dt);
 		}
 	}
 
@@ -237,7 +237,7 @@ namespace physics
 			if (!obj->IsDynamic()) continue;
 			Rigidbody* rigidbody = (Rigidbody*)obj;
 			geometry::Vector vel = rigidbody->GetVelocity()
-			+ (rigidbody->GetForce() / rigidbody->GetMass() * dt);
+			+ ((rigidbody->GetForce() / rigidbody->GetMass()) - rigidbody->GetDrag() * dt);
 			rigidbody->SetVelocity(vel);
 			geometry::Vector pos = geometry::Vector(rigidbody->GetPosition()) + rigidbody->GetVelocity() * dt;
 			rigidbody->SetPosition(pos);
@@ -247,7 +247,7 @@ namespace physics
 
 	void DynamicsWorld::Update(f64 dt) noexcept
 	{
-		ApplyGravity();
+		ApplyGravity(dt);
 		ResolveCollisions(dt);
 		MoveObjects(dt);
 	}

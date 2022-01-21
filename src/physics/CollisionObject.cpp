@@ -2,6 +2,11 @@
 #include "../include/physics/CollisionObject.hpp"
 namespace physics
 {
+	CollisionObject::CollisionObject() noexcept
+	{
+		_collider = new Collider();
+	}
+
 	CollisionObject::CollisionObject(const Transform& t, Collider& c, bool isTrigger) noexcept
 	{
 		classCode = 0x05;

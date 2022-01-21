@@ -10,6 +10,7 @@ namespace algo
 	)
 	{
 		CollisionPoints c;	
+		if (!a || !b) {return c;}
 		f64 r = geometry::Calc::Distance(a->center + ta.position, b->center + tb.position);
 		// If the sum of their radii is greater than or equal to the distance between their centers
 		if (a->radius + b->radius >= r)
@@ -29,20 +30,49 @@ namespace algo
 		return c;
 	}
 
+	CollisionPoints FindCircleBoxCollisionPoints(
+		const CircleCollider* a, const Transform& ta,
+		const BoxCollider* b, const Transform& tb
+	)
+	{
+		CollisionPoints c;
+		if (!a || !b ) {return c;}
+		DynamicCollider* bb = new DynamicCollider(b->pos, b->pos,
+			geometry::Vector(b->pos.x, b->pos.x + b->dimensions.x), 
+			geometry::Vector(b->pos.x + b->dimensions.x, b->pos.y + b->dimensions.y), {geometry::Vector(b->pos.x , b->pos.y + b->dimensions.y)});
+		return FindDynamicCircleCollisionPoints(bb, tb, a, ta);
+	}
+
+	CollisionPoints FindCircleMeshCollisionPoints(
+		const CircleCollider* a, const Transform& ta,
+		const MeshCollider* b, const Transform& tb
+	)
+	{
+		CollisionPoints c;
+		if (!a || !b) {return c;}
+		for (const Collider* ptr: b->colliders)
+		{
+			c = ptr->TestCollision(tb, a, ta);
+			if (c.hasCollision) {return c;}
+		}
+		return c;
+	}
+
 	CollisionPoints FindDynamicCircleCollisionPoints(
 		const DynamicCollider* a, const Transform& ta,
 		const CircleCollider* b, const Transform& tb
 	)
 	{
 		CollisionPoints c;
+		if (!a || !b) {return c;}
 		if (a->points.size())
 		{
 			using namespace geometry;
 			std::vector<Line> lines;
 			for (auto pt = a->points.begin() + 1; pt != a->points.end(); pt++)
 			{
-				lines.push_back(Line(Vector(ta.position.x + (pt - 1)->x, ta.position.y + (pt - 1)->y),
-					Vector(ta.position.x + pt->x, ta.position.y + pt->y)));
+				lines.push_back(Line(Vector(ta.position + *(pt - 1) + a->pos),
+					Vector(ta.position + *pt + a->pos)));
 			}
 			std::vector<Vector> listOfIntersections;
 			for (auto&l: lines)
@@ -122,11 +152,12 @@ namespace algo
 	)
 	{
 		CollisionPoints c;
+		if (!a || !b) {return c;}
 		c.hasCollision = false;
 		std::vector<geometry::Vector> pointIntersectsB;
 		for (const geometry::Vector& p: b->points)
 		{
-			if (DynamicColliderVectorIsColliding(a, ta, p))
+			if (DynamicColliderVectorIsColliding(a, ta, p + b->pos + tb.position))
 			{
 				pointIntersectsB.push_back(p);
 			}
@@ -135,7 +166,7 @@ namespace algo
 			return c;
 		geometry::Vector closest = pointIntersectsB.at(0);
 		bool reached = false;
-		geometry::Vector centroidB = getCentroid(b->points);
+		geometry::Vector centroidB = getCentroid(b->points) + b->pos;
 		for (const geometry::Vector& p: pointIntersectsB)
 		{
 			if (!reached)
@@ -149,7 +180,7 @@ namespace algo
 		std::vector<geometry::Vector> pointIntersectsA;
 		for (const geometry::Vector& p: a->points)
 		{
-			if (DynamicColliderVectorIsColliding(b, tb, p))
+			if (DynamicColliderVectorIsColliding(b, tb, p + a->pos + ta.position))
 			{
 				pointIntersectsA.push_back(p);
 			}
@@ -158,7 +189,7 @@ namespace algo
 			return c;
 		closest = geometry::Origin;
 		reached = false;
-		geometry::Vector centroidA = getCentroid(a->points);
+		geometry::Vector centroidA = getCentroid(a->points) + a->pos;
 		for (const geometry::Vector& p: pointIntersectsA)
 		{
 			if (!reached)
@@ -178,6 +209,33 @@ namespace algo
 		return c;
 	}
 
+	CollisionPoints FindDynamicBoxCollisionPoints(
+		const DynamicCollider* a, const Transform& ta,
+		const BoxCollider* b, const Transform& tb)
+	{
+		CollisionPoints c;
+		if (!a || !b) {return c;}
+		DynamicCollider* bb = new DynamicCollider(b->pos, b->pos,
+			geometry::Vector(b->pos.x, b->pos.x + b->dimensions.x), 
+			geometry::Vector(b->pos.x + b->dimensions.x, b->pos.y + b->dimensions.y), {geometry::Vector(b->pos.x , b->pos.y + b->dimensions.y)});
+		return FindDynamicDynamicCollisionPoints(a, ta, bb, tb);
+	}
+
+	CollisionPoints FindDynamicMeshCollisionPoints(
+		const DynamicCollider* a, const Transform& ta,
+		const MeshCollider* b, const Transform& tb
+	)
+	{
+		CollisionPoints c;
+		if (!a || !b) {return c;}
+		for (const Collider* ptr: b->colliders)
+		{
+			c = ptr->TestCollision(tb, a, ta);
+			if (c.hasCollision) {return c;}
+		}
+		return c;
+	}
+
 	bool DynamicColliderVectorIsColliding(
 		const DynamicCollider* a, const Transform& ta,
 		const geometry::Vector& b
@@ -190,9 +248,9 @@ namespace algo
 		std::vector<geometry::Line> trueLines;
 		for (auto pt = a->points.begin() + 1;pt != a->points.end(); pt++)
 		{
-			trueLines.push_back(geometry::Line(ta.position + *(pt - 1), ta.position + *pt));
+			trueLines.push_back(geometry::Line(ta.position + *(pt - 1) + a->pos, ta.position + *pt + a->pos));
 		}
-		trueLines.push_back(geometry::Line(ta.position + a->points.at(a->points.size() - 1), ta.position + a->points.at(0)));
+		trueLines.push_back(geometry::Line(ta.position + a->points.at(a->points.size() - 1) + a->pos, ta.position + a->points.at(0) + a->pos));
 		std::vector<geometry::Vector> listOfIntersections = std::vector<geometry::Vector>();
 		for (auto l = trueLines.begin(); l != trueLines.end(); l++)
 		{
@@ -205,5 +263,54 @@ namespace algo
 			}
 		}
 		return listOfIntersections.size() % 2;
+	}
+
+	CollisionPoints FindBoxBoxCollisionPoints(
+		const BoxCollider* a, const Transform& ta,
+		const BoxCollider* b, const Transform& tb
+	)
+	{
+		CollisionPoints c;
+		if (!a || !b) {return c;}
+		DynamicCollider* bb = new DynamicCollider(b->pos, b->pos,
+			geometry::Vector(b->pos.x, b->pos.x + b->dimensions.x), 
+			geometry::Vector(b->pos.x + b->dimensions.x, b->pos.y + b->dimensions.y), {geometry::Vector(b->pos.x , b->pos.y + b->dimensions.y)});
+		DynamicCollider* aa = new DynamicCollider(a->pos, a->pos,
+			geometry::Vector(a->pos.x, a->pos.x + a->dimensions.x), 
+			geometry::Vector(a->pos.x + a->dimensions.x, a->pos.y + a->dimensions.y), {geometry::Vector(a->pos.x , a->pos.y + a->dimensions.y)});
+		return FindDynamicDynamicCollisionPoints(aa, ta, bb, tb);
+	}
+
+	CollisionPoints FindBoxMeshCollisionPoints(
+		const BoxCollider* a, const Transform& ta,
+		const MeshCollider* b, const Transform& tb
+	)
+	{
+		CollisionPoints c;
+		if (!a || !b) {return c;}
+		for (const Collider* ptr: b->colliders)
+		{
+			c = ptr->TestCollision(tb, a, ta);
+			if (c.hasCollision) {return c;}
+		}
+		return c;
+	}
+
+	CollisionPoints FindMeshMeshCollisionPoints(
+		const MeshCollider* a, const Transform& ta,
+		const MeshCollider* b, const Transform& tb
+	)
+	{
+		CollisionPoints c;
+		if (!a || !b) {return c;}
+		for (const Collider* ptrA: a->colliders)
+		{
+			for (const Collider* ptrB: a->colliders)
+			{
+				c = ptrA->TestCollision(ta, ptrB, tb);
+				if (c.hasCollision) {return c;}
+			}
+		}
+		return c;
 	}
 }

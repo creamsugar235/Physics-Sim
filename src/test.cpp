@@ -25,6 +25,26 @@ bool test::TestCollisionChecking()
 		}
 	}
 	{
+		BoxCollider b1(Vector(0, 0), Vector(100, 100));
+		Transform t1;
+		BoxCollider b2(Vector(0, 0), Vector(100, 100));
+		Transform t2;
+		for (int i = 0; i < 150; i++)
+		{
+			if ((b1.TestCollision(t1, &b2, t2).hasCollision) && i > 100)
+			{
+				std::cerr<<"failed: \n";
+				return false;
+			}
+			if (!(b1.TestCollision(t1, &b2, t2).hasCollision) && i < 100)
+			{
+				std::cerr<<i<<t1.position<<" in but failed\n";
+				return false;
+			}
+			t1.position += 1;
+		}
+	}
+	{
 		CircleCollider c1(Vector(0, 0), 4);
 		Transform t1;
 		t1.position = Vector(0, 0);

@@ -6,6 +6,7 @@
 
 namespace physics
 {
+	//0x07
 	class Entity : public serialization::Serializable
 	{
 		private:

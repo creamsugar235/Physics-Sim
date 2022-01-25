@@ -10,9 +10,10 @@ namespace physics
 		_sprite = s;
 		if (s.getTexture())
 		{
-			_texture = *s.getTexture();
+			_texture = sf::Texture(*s.getTexture());
 		}
 		_sprite.setTexture(_texture);
+		_sprite.setPosition(_transform.position.x, _transform.position.y);
 		_transform = t;
 	}
 
@@ -23,9 +24,10 @@ namespace physics
 		_sprite = e.GetSprite();
 		if (e.GetSprite().getTexture())
 		{
-			_texture = *e.GetSprite().getTexture();
+			_texture = sf::Texture(*e.GetSprite().getTexture());
 		}
 		_sprite.setTexture(_texture);
+		_sprite.setPosition(_transform.position.x, _transform.position.y);
 		_transform = e.GetTransform();
 	}
 
@@ -37,7 +39,7 @@ namespace physics
 
 	bool Entity::operator!=(const Entity& other) const noexcept
 	{
-		return _name != other.GetName() || *_collider != other.GetCollisionObject() |
+		return _name != other.GetName() || *_collider != other.GetCollisionObject() ||
 		_transform != other.GetTransform();
 	}
 
@@ -63,7 +65,6 @@ namespace physics
 
 	sf::Sprite Entity::GetSprite() const noexcept
 	{
-		//std::cout<<"IS MY SPRITE MESSED UP?"<<std::endl;
 		return _sprite;
 	}
 

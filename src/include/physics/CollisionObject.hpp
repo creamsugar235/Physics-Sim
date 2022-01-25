@@ -1,6 +1,7 @@
 #pragma once
 #include "Collider.hpp"
 #include <functional>
+#include <memory>
 
 namespace physics
 {
@@ -18,7 +19,7 @@ namespace physics
 		protected:
 			Transform _transform;
 			Transform _lastTransform;
-			Collider* _collider = NULL;
+			std::unique_ptr<Collider> _collider;
 			bool _isTrigger = false;
 			bool _isDynamic = false;
 			std::function<void(Collision&, f64)> _onCollision;
@@ -28,6 +29,7 @@ namespace physics
 			CollisionObject(const CollisionObject& c) noexcept;
 			virtual ~CollisionObject() noexcept;
 			virtual CollisionObject* Clone() const noexcept;
+			virtual CollisionObject& operator=(const CollisionObject& other) noexcept;
 			virtual bool operator==(const CollisionObject& other) const noexcept;
 			virtual bool operator!=(const CollisionObject& other) const noexcept;
 			serialization::Serializable* Deserialize(std::vector<byte> v) const override;

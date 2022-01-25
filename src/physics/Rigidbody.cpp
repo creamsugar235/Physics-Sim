@@ -30,9 +30,26 @@ namespace physics
 		_restitution = r.GetRestitution();
 	}
 
+	Rigidbody::~Rigidbody() noexcept
+	{
+	}
+
+	Rigidbody& Rigidbody::operator=(const Rigidbody& other) noexcept
+	{
+		if (*this != other)
+		{
+			_mass = other.GetMass();
+			_usesGravity = other.UsesGravity();
+			_staticFriction = other.GetStaticFriction();
+			_dynamicFriction = other.GetDynamicFriction();
+			_restitution = other.GetRestitution();
+		}
+		return *this;
+	}
+
 	bool Rigidbody::operator==(const CollisionObject& other) const noexcept
 	{
-		Rigidbody tmp(*this);
+		Rigidbody tmp;
 		try
 		{
 			tmp = dynamic_cast<const Rigidbody&>(other);

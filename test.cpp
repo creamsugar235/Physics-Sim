@@ -2,81 +2,38 @@
 #include <fstream>
 #include <string>
 #include <vector>
-
-void bruh()
+typedef double f64;
+struct Square
 {
+	f64 x = 0;
+	f64 y = 0;
+	f64 width = 0;
+	f64 height = 0;
+};
+
+bool SquareOverLaps(const Square& a, const Square& b)
+{
+	auto numInRange = [&] (double value, double minVal, double maxVal){
+		return (value >= minVal) && (value <= maxVal);
+	};
+	bool xOverlaps = numInRange(a.x, b.x, b.x + b.width) ||
+		numInRange(b.x, a.x, a.x + a.width);
+	bool yOverlaps = numInRange(a.y, b.y, b.y + b.height) ||
+		numInRange(b.y, a.y, a.y + a.height);
+	return xOverlaps && yOverlaps;
 }
-class Base
-{
-	public:
-		const char * b = "rejapifsdf";
-		int r = 0;
-		std::vector<int> ints;
-		static void bruh() {}
-};
-
-struct Derived : public Base
-{
-	public:
-		const char * c = "brahugpeafds";
-		int d = 3;
-		static void bruh()
-		{
-			std::cout<<"bruh\n";
-		}
-};
-
 int main(int argc, char** args)
 {
-	if (argc - 1)
-	{
-		//std::ofstream file(std::string(args[1]), std::ios::binary);
-		/*Derived b;
-		Derived d;
-		for (int i = 0; i < 100; i++)
-			d.ints.push_back(i);
-		d.c = "fadshfd";
-		file.write((char*)&d, sizeof(d));
-		file.close();
-		
-		Derived::bruh();
-		void(*t)() = Base::bruh;
-		const unsigned char * bb = reinterpret_cast<unsigned char*>(&t);
-		std::cout<<std::dec<<(int* )bb<<std::endl;;
-		std::ifstream file2;
-		file2.open(args[1], std::ios::in);
-		file2.seekg(0);
-		file2.read((char*)&b, sizeof(b));
-		file2.close();*/
-		/*double d = 15000;
-		std::vector<unsigned char> v;
-		const unsigned char* c= (const unsigned char*) &d;
-		for (int i = 0; i < sizeof(double); i++)
-		{
-			v.push_back(c[i]);
-		}
-		for (unsigned char UC: v)
-		{
-			std::cout<<std::hex<<(int)UC<<std::endl;
-		}
-		double d2 = 0;
-		char* c2 = (char*)&d2;
-		std::cout<<d2<<std::endl;
-		int i = 0;
-		for (unsigned char UC: v)
-		{
-			c2[i] = UC;
-			i++;
-		}
-		std::cout<<d2<<std::endl;*/
-		int arr[20] = {};
-		for (int i = 0; i < 20; i++)
-			arr[i] = i;
-		for (int i = 0; i < 20; i++)
-		{
-			std::cout<<arr[i]++<<"\n";
-		}
-		//std::cout<<b.d<<" "<<b.c<<" "<<b.ints.at(0)<<"\n";
-	}
+	Square s;
+	Square s2;
+	s.x = 50;
+	s.y = 50;
+	s.width = 10;
+	s.height = 10;
+	s2.x = 60.1;
+	s2.y = 60;
+	s2.width = 10;
+	s2.height = 10;
+	std::cout<<std::boolalpha<<SquareOverLaps(s, s2)<<"\n";
 	return 0;
 }

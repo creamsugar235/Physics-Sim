@@ -12,6 +12,7 @@ namespace physics
 		DynamicCollider();
 		DynamicCollider(const DynamicCollider& d) noexcept;
 		DynamicCollider(geometry::Vector pos, geometry::Vector a, geometry::Vector b, geometry::Vector c, std::initializer_list<geometry::Vector> extra={}) noexcept;
+		~DynamicCollider() noexcept;
 		bool operator==(const Collider& other) const noexcept override;
 		bool operator!=(const Collider& other) const noexcept override;
 		Collider* Clone() const override;

@@ -37,6 +37,7 @@ compilePhysics:
 	g++ -c -Wall -std=c++17 src/physics/OstreamOverloads.cpp -o bin/o/OstreamOverloads.o
 	g++ -c -Wall -std=c++17 src/physics/Rigidbody.cpp -o bin/o/Rigidbody.o
 	g++ -c -Wall -std=c++17 src/physics/Scene.cpp -o bin/o/Scene.o
+	g++ -c -Wall -std=c++17 src/physics/Time.cpp -o bin/o/Time.o
 	g++ -c -Wall -std=c++17 src/physics/World.cpp -o bin/o/World.o
 	ar rcs lib/physics.a bin/o/*.o
 	ranlib lib/physics.a
@@ -57,6 +58,7 @@ debugCompilePhysics:
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Rigidbody.cpp -o bin/o/Rigidbody.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Scene.cpp -o bin/o/Scene.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/test.cpp -o bin/o/Test.o
+	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Time.cpp -o bin/o/Time.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/World.cpp -o bin/o/World.o
 	ar rcs lib/physics.a bin/o/*.o
 	ranlib lib/physics.a

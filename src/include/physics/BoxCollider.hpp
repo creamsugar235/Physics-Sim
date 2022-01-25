@@ -9,12 +9,18 @@ namespace physics
 	{
 		geometry::Vector pos;
 		geometry::Vector dimensions;
+		double& x = pos.x;
+		double& y = pos.y;
+		double& width = dimensions.x;
+		double& height = dimensions.y;
 		BoxCollider() noexcept;
 		BoxCollider(const geometry::Vector& pos, const geometry::Vector& dimensions) noexcept;
 		BoxCollider(const BoxCollider& b) noexcept;
+		~BoxCollider() noexcept;
+		BoxCollider& operator=(const BoxCollider& b);
 		virtual bool operator==(const Collider& other) const noexcept override;
 		virtual bool operator!=(const Collider& other) const noexcept override;
-		Collider* Clone() const override;
+		Collider* Clone() const noexcept override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
 			const Collider* collider,

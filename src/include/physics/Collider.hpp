@@ -3,6 +3,7 @@
 #include "Serializable.hpp"
 namespace physics
 {
+
 	struct Transform;
 	struct BoxCollider;
 	struct Collider;
@@ -31,9 +32,15 @@ namespace physics
 
 	struct Transform : public serialization::Serializable
 	{
-		geometry::Vector position;
-		geometry::Vector scale;
-		geometry::Quaternion rotation;
+		geometry::Vector position = geometry::Vector(0, 0);
+		geometry::Vector scale = geometry::Vector(1, 1);
+		geometry::Quaternion rotation = geometry::Quaternion();
+		inline Transform() noexcept
+		{
+			position = geometry::Vector(0, 0);
+			scale = geometry::Vector(1, 1);
+			rotation = geometry::Quaternion();
+		}
 		inline bool operator==(const Transform& other) const noexcept
 		{
 			return position == other.position && scale == other.scale && rotation == other.rotation;
@@ -50,7 +57,7 @@ namespace physics
 	struct Collider : public serialization::Serializable
 	{
 		virtual Collider* Clone() const = 0;
-		virtual ~Collider();
+		virtual ~Collider() noexcept;
 		virtual bool operator==(const Collider& other) const noexcept = 0;
 		virtual bool operator!=(const Collider& other) const noexcept = 0;
 		virtual CollisionPoints TestCollision(

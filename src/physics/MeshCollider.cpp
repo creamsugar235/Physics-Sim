@@ -22,6 +22,8 @@ namespace physics
 		}
 	}
 
+	MeshCollider::~MeshCollider() noexcept {}
+
 	bool MeshCollider::operator==(const Collider& other) const noexcept
 	{
 		MeshCollider m;

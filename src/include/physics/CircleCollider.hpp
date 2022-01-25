@@ -11,6 +11,7 @@ namespace physics
 		CircleCollider() noexcept;
 		CircleCollider(geometry::Vector center, f64 radius) noexcept;
 		CircleCollider(const CircleCollider& c) noexcept;
+		~CircleCollider() noexcept;
 		virtual bool operator==(const Collider& other) const noexcept override;
 		virtual bool operator!=(const Collider& other) const noexcept override;
 		Collider* Clone() const override;

@@ -9,7 +9,14 @@ namespace physics
 		public:
 			virtual void Solve(std::vector<Collision>& collisions, f64 dt) noexcept = 0;
 	};
-	class RestitutionSolver : Solver
+
+	class ImpulseSolver : public Solver
+	{
+		public:
+			void Solve(std::vector<Collision>& collisions, f64 dt) noexcept override;
+	};
+
+	class PositionalCorrectionSolver : public Solver
 	{
 		public:
 			void Solve(std::vector<Collision>& collisions, f64 dt) noexcept override;
@@ -39,6 +46,7 @@ namespace physics
 		private:
 			geometry::Vector _gravity = geometry::Vector(0, -9.81);
 		public:
+			DynamicsWorld() noexcept;
 			void AddRigidbody(Rigidbody* rb) noexcept;
 			void ApplyGravity(f64 dt) noexcept;
 			void MoveObjects(f64 dt) noexcept;

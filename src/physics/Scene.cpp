@@ -49,7 +49,10 @@ namespace physics
 		_gravity = gravity;
 		_dt = dt;
 		std::string name = "display";
-		display = new Display(500, 500, name);
+		display = new Display(300, 300, name);
+		sf::View v = display->GetWindow()->getDefaultView();
+		v.setSize(300, -300);
+		display->SetView(v);
 	}
 
 	Scene::~Scene()
@@ -111,6 +114,7 @@ namespace physics
 			if (dt + _physicsUpdateCounter.total > 1000 / physicsUpdateFrequency)
 			{
 				_world.Update(_physicsUpdateCounter.total + dt);
+				_world.ResolveCollisions(_physicsUpdateCounter.total + dt);
 				_physicsUpdateCounter.total = 0;
 			}
 			else

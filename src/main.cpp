@@ -1,71 +1,151 @@
 #include "include/physics/Scene.hpp"
-#include "include/SFML/Graphics.hpp"
+#include "include/SFML/Main.hpp"
 #include "physics/main.hpp"
 #include "test.hpp"
 #include <iostream>
 #include <chrono>
+#include <thread>
+#include <random>
 using namespace physics;
 using namespace geometry;
+double timeout = 0;
+void Update(std::vector<Rigidbody>& rigidbodies, std::vector<sf::Drawable*>& drawables, std::vector<Collision>& c);
 
-class Time final
+void Draw(std::vector<sf::Drawable*> drawables, sf::RenderWindow* win, std::vector<physics::Collision> collisions)
 {
-	public:
-		typedef std::chrono::steady_clock clock;
-		static inline std::chrono::time_point<clock> time = clock::now();
-		static inline double deltaTime = -1;
-		static void Tick();
-};
+	win->clear();
+	for (sf::Drawable* d: drawables)
+	{
+		win->draw(*d);
+	}
+	for (Collision c: collisions)
+	{
+		CollisionPoints p = c.points;
+		sf::CircleShape c1(5);
+		c1.setFillColor(sf::Color::Red);
+		sf::CircleShape c2(5);
+		c2.setFillColor(sf::Color::Blue);
+		c1.setPosition(p.a.x, p.a.y);
+		c2.setPosition(p.b.x, p.b.y);
+		sf::RectangleShape line(sf::Vector2f(Calc::Distance(p.a, p.b), 2));
+		line.rotate(Calc::Degrees(Calc::GetAngle(p.a, p.b)));
+		win->draw(line);
+		win->draw(c1);
+		win->draw(c2);
+	}
+	win->display();
+}
 
-void Time::Tick()
+void Generate(sf::RenderWindow& w, std::vector<Rigidbody>& v, std::vector<sf::Drawable*>& drawTo)
 {
-	std::chrono::time_point<clock> t = clock::now();
-	deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(t - time).count();
-	time = clock::now();
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+		{
+			BoxCollider b(Vector(0, 0), Vector(20, 20));
+			sf::RectangleShape* rect = new sf::RectangleShape(sf::Vector2f(20, 20));
+			rect->setOutlineThickness(1);
+			rect->setFillColor(sf::Color::Transparent);
+			rect->setOutlineColor(sf::Color::White);
+			Transform t;
+			sf::Vector2f pos = w.mapPixelToCoords(sf::Mouse::getPosition(w));
+			t.position.x = pos.x;
+			t.position.y = pos.y;
+			Rigidbody r(t, b, false, 20);
+			v.push_back(r);
+			drawTo.push_back(rect);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		{
+			BoxCollider b(Vector(0, 0), Vector(50, 50));
+			sf::RectangleShape* rect = new sf::RectangleShape(sf::Vector2f(20, 20));
+			rect->setOutlineThickness(1);
+			rect->setFillColor(sf::Color::Transparent);
+			rect->setOutlineColor(sf::Color::White);
+			Transform t;
+			sf::Vector2f pos = w.mapPixelToCoords(sf::Mouse::getPosition(w));
+			t.position.x = pos.x;
+			t.position.y = pos.y;
+			Rigidbody r(t, b, false, 50);
+			v.push_back(r);
+			drawTo.push_back(rect);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+		{
+			CircleCollider b(Vector(0, 0), 20);
+			sf::CircleShape* circ = new sf::CircleShape(10);
+			circ->setOutlineThickness(1);
+			circ->setFillColor(sf::Color::Transparent);
+			circ->setOutlineColor(sf::Color::White);
+			Transform t;
+			sf::Vector2f pos = w.mapPixelToCoords(sf::Mouse::getPosition(w));
+			t.position.x = pos.x;
+			t.position.y = pos.y;
+			Rigidbody r(t, b, false, 50);
+			v.push_back(r);
+			drawTo.push_back(circ);
+		}
+	}
 }
 
 int main(int argc, char** args)
 {
-	CircleCollider c(Vector(0, 0), 10);
-	Scene s0(Vector(0, 0), 0);
-	sf::Sprite s;
-	Transform t;
-	t.rotation.w = 0;
-	t.rotation.x = 0;
-	t.rotation.y = 0;
-	t.rotation.z = 0;
-	t.scale = Vector(0, 0);
-	/*t.position.x = std::numeric_limits<double>::max() - 1000;
-	t.position.y = std::numeric_limits<double>::max() - 1000;
-	t.scale.x = std::numeric_limits<double>::max() - 1000;
-	t.scale.y = std::numeric_limits<double>::max() - 1000;
-	t.rotation.x = std::numeric_limits<double>::max() - 1000;
-	t.rotation.y = std::numeric_limits<double>::max() - 1000;
-	t.rotation.z = std::numeric_limits<double>::max() - 1000;
-	t.rotation.w = std::numeric_limits<double>::max() - 1000;*/
-	for (unsigned char& c: t.Serialize())
+	Time __t__();
+	srand(time(NULL));
+	sf::ContextSettings settings;
+	settings.antialiasingLevel = 8;
+	sf::RenderWindow window(sf::VideoMode(300, 300), "PhysicsSim", sf::Style::Default, settings);
+	std::vector<Rigidbody> bodies;
+	std::vector<sf::Drawable*> sprites;
+	std::vector<Collision> collisions;
+	while (window.isOpen())
 	{
-		std::cout<<std::hex<<(int)c<<" ";
+		if (timeout > 0) {timeout--;}
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+			{
+				window.close();
+			}
+		}
+		/*Time::Tick();
+		if (!timeout)
+			Generate(window, bodies, sprites);
+		Update(bodies, sprites, collisions);
+		Draw(sprites, &window, collisions);*/
 	}
-	auto t2 = (Transform*)t.Deserialize(t.Serialize());
-	std::cout<<"\n"<<t2->position<<"\n";
-	std::cout<<t2->scale<<"\n";
-	std::cout<<t2->rotation;
-	std::cout<<std::endl;
-	Rigidbody r(t, c, false, false);
-	Entity e("brhu", r, t, s);
-	if (!test::TestCollisionChecking())
-	{
-		std::cerr<<"failed\n\a";
-		exit(1);
-	} else if (!test::TestColliders())
-	{
-		std::cerr<<"failed\n\a";
-		exit(1);
-	} else if (!test::TestCollisionObject())
-	{
-		std::cerr<<"failed\n\a";
-		exit(1);
-	}
-	std::cout<<"Success!\n";
+	//for (sf::Drawable* d: sprites)
+	//{
+	//	delete d;
+	//}
+	BoxCollider b(Vector(0, 0), Vector(20, 20));
+	Transform trans;
+	CollisionObject c(trans, b, false);
+	b.~BoxCollider();
+	std::cerr<<"Err?\n";
+	c.~CollisionObject();
 	return 0;
+}
+
+void Update(std::vector<Rigidbody>& rigidbodies,
+std::vector<sf::Drawable*>& drawables, std::vector<Collision>& c)
+{
+	c.clear();
+	for (Rigidbody& a: rigidbodies)
+	{
+		for (Rigidbody& b: rigidbodies)
+		{
+			if (a == b) continue;
+			Collider& tmp = b.GetCollider();
+			if (a.GetCollider().TestCollision(a.GetTransform(), &tmp, b.GetTransform()).hasCollision)
+			{
+				Collision collision;
+				collision.a = &a;
+				collision.b = &b;
+				collision.points = a.GetCollider().TestCollision(a.GetTransform(), &tmp, b.GetTransform());
+				c.push_back(collision);
+			}
+		}
+	}
 }

@@ -24,14 +24,12 @@ namespace physics
 					void PhysicsUpdate() noexcept;
 					f64 physicsUpdateRate;
 			};
-
 			struct Counter final
 			{
 				unsigned int loops;
 				f64 total;
 				std::vector<f64> loopsPerSecond;
 			};
-
 			Counter _fpsCounter;
 			Counter _physicsUpdateCounter;
 			PhysicsSmoothStepSystem _smoother;

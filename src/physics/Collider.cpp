@@ -141,7 +141,7 @@ namespace physics
 		t->rotation = rot;
 		return t;
 	}
-	Collider::~Collider()
+	Collider::~Collider() noexcept
 	{
 	}
 

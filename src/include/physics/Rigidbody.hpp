@@ -23,6 +23,8 @@ namespace physics
 				bool usesGravity=true, f64 staticFriction=0.5, f64 dynamicFriction=0.5,
 				f64 restitution=0.5) noexcept;
 			Rigidbody(const Rigidbody& r) noexcept;
+			~Rigidbody() noexcept;
+			Rigidbody& operator=(const Rigidbody& other) noexcept;
 			virtual bool operator==(const CollisionObject& other) const noexcept override;
 			virtual bool operator!=(const CollisionObject& other) const noexcept override;
 			void ApplyForce(geometry::Vector f) noexcept;

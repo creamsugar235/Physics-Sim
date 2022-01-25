@@ -5,4 +5,5 @@
 #include "../include/physics/Entity.hpp"
 #include "../include/physics/Scene.hpp"
 #include "../include/physics/OstreamOverloads.hpp"
+#include "../include/physics/Time.hpp"
 #include "../include/physics/World.hpp"

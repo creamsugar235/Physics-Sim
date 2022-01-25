@@ -21,6 +21,8 @@ namespace physics
 		this->center = c.center;
 	}
 
+	CircleCollider::~CircleCollider() noexcept {}
+
 	Collider* CircleCollider::Clone() const
 	{
 		return new CircleCollider(*this);

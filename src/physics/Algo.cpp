@@ -38,8 +38,8 @@ namespace algo
 		CollisionPoints c;
 		if (!a || !b ) {return c;}
 		DynamicCollider* bb = new DynamicCollider(b->pos, b->pos,
-			geometry::Vector(b->pos.x, b->pos.x + b->dimensions.x), 
-			geometry::Vector(b->pos.x + b->dimensions.x, b->pos.y + b->dimensions.y), {geometry::Vector(b->pos.x , b->pos.y + b->dimensions.y)});
+			geometry::Vector(b->x, b->y + b->height), 
+			geometry::Vector(b->x + b->width, b->y + b->height), {geometry::Vector(b->x , b->y + b->height)});
 		return FindDynamicCircleCollisionPoints(bb, tb, a, ta);
 	}
 
@@ -216,8 +216,8 @@ namespace algo
 		CollisionPoints c;
 		if (!a || !b) {return c;}
 		DynamicCollider* bb = new DynamicCollider(b->pos, b->pos,
-			geometry::Vector(b->pos.x, b->pos.x + b->dimensions.x), 
-			geometry::Vector(b->pos.x + b->dimensions.x, b->pos.y + b->dimensions.y), {geometry::Vector(b->pos.x , b->pos.y + b->dimensions.y)});
+			geometry::Vector(b->x + b->width, b->y), 
+			geometry::Vector(b->x + b->width, b->y + b->height), {geometry::Vector(b->x , b->y + b->height)});
 		return FindDynamicDynamicCollisionPoints(a, ta, bb, tb);
 	}
 
@@ -273,11 +273,11 @@ namespace algo
 		CollisionPoints c;
 		if (!a || !b) {return c;}
 		DynamicCollider* bb = new DynamicCollider(b->pos, b->pos,
-			geometry::Vector(b->pos.x, b->pos.x + b->dimensions.x), 
-			geometry::Vector(b->pos.x + b->dimensions.x, b->pos.y + b->dimensions.y), {geometry::Vector(b->pos.x , b->pos.y + b->dimensions.y)});
+			geometry::Vector(b->x + b->width, b->y), 
+			geometry::Vector(b->x + b->width, b->y + b->height), {geometry::Vector(b->x , b->y + b->height)});
 		DynamicCollider* aa = new DynamicCollider(a->pos, a->pos,
-			geometry::Vector(a->pos.x, a->pos.x + a->dimensions.x), 
-			geometry::Vector(a->pos.x + a->dimensions.x, a->pos.y + a->dimensions.y), {geometry::Vector(a->pos.x , a->pos.y + a->dimensions.y)});
+			geometry::Vector(a->x + a->width, a->y), 
+			geometry::Vector(a->x + a->width, a->y + a->height), {geometry::Vector(a->x , a->y + a->height)});
 		return FindDynamicDynamicCollisionPoints(aa, ta, bb, tb);
 	}
 

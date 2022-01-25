@@ -4,7 +4,7 @@
 namespace physics
 {
 	//bouncing
-	void RestitutionSolver:: Solve(std::vector<Collision>& collisions, f64 dt) noexcept
+	void ImpulseSolver:: Solve(std::vector<Collision>& collisions, f64 dt) noexcept
 	{
 		for (Collision& c: collisions)
 		{
@@ -17,13 +17,34 @@ namespace physics
 			if (velAlongNormal > 0) continue;
 			f64 j = -(1 + e) * velAlongNormal;
 			j /= a->GetInvMass() + b->GetInvMass();
+			double ratio = a->GetMass() / (a->GetMass() + b->GetMass());
 			geometry::Vector impulse = c.points.normal * j;
 			geometry::Vector aVel = a->GetVelocity();
 			geometry::Vector bVel = b->GetVelocity();
-			aVel -= impulse * a->GetInvMass();
-			bVel -= impulse * b->GetInvMass();
-			a->SetVelocity(aVel);
-			b->SetVelocity(bVel);
+			aVel -= ratio * impulse;
+			ratio = b->GetMass() / a->GetMass() + b->GetMass();
+			bVel += ratio * impulse;
+			a->SetVelocity(aVel * dt);
+			b->SetVelocity(bVel * dt);
+		}
+	}
+
+	void PositionalCorrectionSolver::Solve(std::vector<Collision>& collisions, f64 dt) noexcept
+	{
+		for (Collision& c: collisions)
+		{
+			if (!c.a->IsDynamic() || !c.b->IsDynamic()) continue;
+			Rigidbody* a = (Rigidbody*) c.a;
+			Rigidbody* b = (Rigidbody*) c.b;
+			double percentage = 0.2;
+			double slop = 0.01;
+			double correction = std::max(c.points.depth - slop, 0.0) / (a->GetInvMass() + b->GetInvMass()) * percentage;
+			geometry::Vector aPos = a->GetPosition();
+			geometry::Vector bPos = b->GetPosition();
+			aPos -= a->GetInvMass() * correction * dt;
+			bPos += b->GetInvMass() * correction * dt;
+			a->SetPosition(aPos);
+			b->SetPosition(bPos);
 		}
 	}
 
@@ -75,21 +96,24 @@ namespace physics
 
 	bool SquareOverLaps(const Square& a, const Square& b)
 	{
-		if (a.x >= b.x + b.width || b.x >= a.x + a.width)
-			return false;
-		if (a.y + a.height >= b.y || b.y + b.height >= a.y)
-			return false;
-		return true;
+		auto numInRange = [&] (double value, double minVal, double maxVal){
+			return (value >= minVal) && (value <= maxVal);
+		};
+		bool xOverlaps = numInRange(a.x, b.x, b.x + b.width) ||
+			numInRange(b.x, a.x, a.x + a.width);
+		bool yOverlaps = numInRange(a.y, b.y, b.y + b.height) ||
+			numInRange(b.y, a.y, a.y + a.height);
+		return xOverlaps && yOverlaps;
 	}
 
 	void CollisionWorld::AddObject(CollisionObject* o) noexcept
 	{
-		_objects.emplace_back(o);
+		_objects.push_back(o);
 	}
 
 	void CollisionWorld::AddSolver(Solver* s) noexcept
 	{
-		_solvers.emplace_back(s);
+		_solvers.push_back(s);
 	}
 
 	void CollisionWorld::ResolveCollisions(f64 dt) noexcept
@@ -108,8 +132,8 @@ namespace physics
 					CircleCollider& cc = dynamic_cast<CircleCollider&>(a->GetCollider());
 					geometry::Vector center = cc.center;
 					f64 radius = cc.radius;
-					BoundingBoxA.x = center.x - radius;
-					BoundingBoxA.y = center.y - radius;
+					BoundingBoxA.x = center.x - radius + a->GetTransform().position.x;
+					BoundingBoxA.y = center.y - radius + a->GetTransform().position.y;
 					BoundingBoxA.width = radius * 2;
 					BoundingBoxA.height = radius * 2;
 				}
@@ -118,11 +142,29 @@ namespace physics
 					DynamicCollider& dc = dynamic_cast<DynamicCollider&>(a->GetCollider());
 					geometry::Vector minimum = getMin(dc.points);
 					geometry::Vector maximum = getMax(dc.points);
+					BoundingBoxA.x = minimum.x + a->GetTransform().position.x;
+					BoundingBoxA.y = minimum.y + a->GetTransform().position.y;
+					BoundingBoxA.width = maximum.x - minimum.x;
+					BoundingBoxA.height = maximum.y - minimum.y;
+				}
+				else if (dynamic_cast<BoxCollider*>(clone))
+				{
+					BoxCollider& bc = (BoxCollider&)(a->GetCollider());
+					BoundingBoxA.x = bc.x + a->GetTransform().position.x;
+					BoundingBoxA.y = bc.y + a->GetTransform().position.y;
+					BoundingBoxA.width = bc.width;
+					BoundingBoxA.height = bc.height;
+				}
+				/*else if (dynamic_cast<MeshCollider*>(clone))
+				{
+					MeshCollider& mc = dynamic_cast<MeshCollider&>(a->GetCollider());
+					geometry::Vector minimum = getMin(mc.colliders);
+					geometry::Vector maximum = getMax(mc.colliders);
 					BoundingBoxA.x = minimum.x;
 					BoundingBoxA.y = minimum.y;
 					BoundingBoxA.width = maximum.x - minimum.x;
 					BoundingBoxA.height = maximum.y - minimum.y;
-				}
+				}*/
 				delete clone;
 				clone = b->GetCollider().Clone();
 				if (dynamic_cast<CircleCollider*>(clone))
@@ -130,8 +172,8 @@ namespace physics
 					CircleCollider& cc = dynamic_cast<CircleCollider&>(b->GetCollider());
 					geometry::Vector center = cc.center;
 					f64 radius = cc.radius;
-					BoundingBoxB.x = center.x - radius;
-					BoundingBoxB.y = center.y - radius;
+					BoundingBoxB.x = center.x - radius + b->GetTransform().position.x;
+					BoundingBoxB.y = center.y - radius + b->GetTransform().position.y;
 					BoundingBoxB.width = radius * 2;
 					BoundingBoxB.height = radius * 2;
 				}
@@ -140,21 +182,29 @@ namespace physics
 					DynamicCollider& dc = dynamic_cast<DynamicCollider&>(b->GetCollider());
 					geometry::Vector minimum = getMin(dc.points);
 					geometry::Vector maximum = getMax(dc.points);
-					BoundingBoxB.x = minimum.x;
-					BoundingBoxB.y = minimum.y;
+					BoundingBoxB.x = minimum.x + b->GetTransform().position.x;
+					BoundingBoxB.y = minimum.y + b->GetTransform().position.y;
 					BoundingBoxB.width = maximum.x - minimum.x;
 					BoundingBoxB.height = maximum.y - minimum.y;
+				}
+				else if (dynamic_cast<BoxCollider*>(clone))
+				{
+					BoxCollider& bc = (BoxCollider&)b->GetCollider();
+					BoundingBoxB.x = bc.x + b->GetTransform().position.x;
+					BoundingBoxB.y = bc.y + b->GetTransform().position.y;
+					BoundingBoxB.width = bc.width;
+					BoundingBoxB.height = bc.height;
 				}
 				delete clone;
 				if (SquareOverLaps(BoundingBoxA, BoundingBoxB))
 				{
-					std::cout<<"OMG WE TOUCHED?"<<std::endl;
+					std::cerr<<"OMG WE TOUCHED?\n";
 					CollisionPoints points = a->GetCollider().TestCollision(
 						a->GetTransform(), &b->GetCollider(), b->GetTransform()
 					);
 					if (points.hasCollision)
 					{
-						std::cout<<"WE DIDDD!!"<<std::endl;
+						std::cerr<<"WE DIDDD!!\n";
 						Collision c;
 						c.a = a;
 						c.b = b;
@@ -204,20 +254,25 @@ namespace physics
 		for (Collision& c : collisions)
 		{
 			_onCollision(c, dt);
-			/*auto& a = c.a->OnCollision();
-			auto& b = c.b->OnCollision();
+			const auto& a = c.a->GetOnCollisionFunction();
+			const auto& b = c.b->GetOnCollisionFunction();
 			if (a) a(c, dt);
-			if (b) b(c, dt);*/
+			if (b) b(c, dt);
 		}
 	}
 
 	void DynamicsWorld::AddRigidbody(Rigidbody* r) noexcept
 	{
+		if (!r) {return;}
 		if (r->UsesGravity())
 		{
 			r->SetGravity(_gravity);
 		}
-		_objects.emplace_back(r);
+		else
+		{
+			r->SetGravity(geometry::Vector(0, 0));
+		}
+		_objects.push_back(r);
 	}
 
 	void DynamicsWorld::ApplyGravity(f64 dt) noexcept
@@ -226,7 +281,10 @@ namespace physics
 		{
 			if (!obj->IsDynamic()) continue;
 			Rigidbody* rigidbody = (Rigidbody*) obj;
-			rigidbody->ApplyForce(rigidbody->GetGravity() * rigidbody->GetMass() * dt);
+			if (!rigidbody->UsesGravity()) continue;
+			geometry::Vector grav = (rigidbody->GetGravity() / rigidbody->GetMass()) * dt;
+			grav.x = 0;
+			rigidbody->ApplyForce(grav);
 		}
 	}
 
@@ -236,9 +294,6 @@ namespace physics
 		{
 			if (!obj->IsDynamic()) continue;
 			Rigidbody* rigidbody = (Rigidbody*)obj;
-			geometry::Vector vel = rigidbody->GetVelocity()
-			+ ((rigidbody->GetForce() / rigidbody->GetMass()) - rigidbody->GetDrag() * dt);
-			rigidbody->SetVelocity(vel);
 			geometry::Vector pos = geometry::Vector(rigidbody->GetPosition()) + rigidbody->GetVelocity() * dt;
 			rigidbody->SetPosition(pos);
 			rigidbody->SetForce(geometry::Vector(0, 0));
@@ -250,5 +305,9 @@ namespace physics
 		ApplyGravity(dt);
 		ResolveCollisions(dt);
 		MoveObjects(dt);
+	}
+
+	DynamicsWorld::DynamicsWorld() noexcept
+	{
 	}
 }

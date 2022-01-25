@@ -4,27 +4,39 @@ namespace physics
 {
 	CollisionObject::CollisionObject() noexcept
 	{
-		_collider = new Collider();
+		_collider.reset(new BoxCollider());
 	}
 
 	CollisionObject::CollisionObject(const Transform& t, Collider& c, bool isTrigger) noexcept
 	{
 		classCode = 0x05;
 		_transform = t;
-		_collider = c.Clone();
+		_collider.reset(c.Clone());
 		_isTrigger = isTrigger;
-		deserializerMaps.insert(std::pair<unsigned long, Serializable*>(0x03, new CircleCollider()));
-		deserializerMaps.insert(std::pair<unsigned long, Serializable*>(0x04, new DynamicCollider()));
+		//deserializerMaps.insert(std::pair<unsigned long, Serializable*>(0x03, new CircleCollider()));
+		//deserializerMaps.insert(std::pair<unsigned long, Serializable*>(0x04, new DynamicCollider()));
 	}
 
 	CollisionObject::CollisionObject(const CollisionObject& c) noexcept
 	{
 		classCode = 0x05;
 		_transform = c.GetTransform();
-		_collider = c.GetCollider().Clone();
+		_collider.reset(c.GetCollider().Clone());
 		_isTrigger = c.IsTrigger();
-		deserializerMaps.insert(std::pair<unsigned long, Serializable*>(0x03, new CircleCollider()));
-		deserializerMaps.insert(std::pair<unsigned long, Serializable*>(0x04, new DynamicCollider()));
+		//deserializerMaps.insert(std::pair<unsigned long, Serializable*>(0x03, new CircleCollider()));
+		//deserializerMaps.insert(std::pair<unsigned long, Serializable*>(0x04, new DynamicCollider()));
+	}
+
+	CollisionObject& CollisionObject::operator=(const CollisionObject& other) noexcept
+	{
+		if (*this != other)
+		{
+			_transform = other.GetTransform();
+			_collider.reset(other.GetCollider().Clone());
+			_isTrigger = other.IsTrigger();
+			_onCollision = other.GetOnCollisionFunction();
+		}
+		return *this;
 	}
 
 	bool CollisionObject::operator==(const CollisionObject& other) const noexcept
@@ -44,7 +56,6 @@ namespace physics
 
 	CollisionObject::~CollisionObject() noexcept
 	{
-		delete _collider;
 	}
 
 	bool CollisionObject::IsTrigger() const noexcept
@@ -101,8 +112,7 @@ namespace physics
 
 	void CollisionObject::SetCollider(Collider& c) noexcept
 	{
-		delete _collider;
-		_collider = c.Clone();
+		_collider.reset(c.Clone());
 	}
 
 	void CollisionObject::SetLastTransform(const Transform& t) noexcept

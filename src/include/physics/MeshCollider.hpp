@@ -10,6 +10,7 @@ namespace physics
 		MeshCollider() noexcept;
 		MeshCollider(const std::vector<Collider*>& colliders) noexcept;
 		MeshCollider(const MeshCollider& m) noexcept;
+		~MeshCollider() noexcept;
 		bool operator==(const Collider& other) const noexcept override;
 		bool operator!=(const Collider& other) const noexcept override;
 		Collider* Clone() const override;

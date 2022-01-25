@@ -27,6 +27,8 @@ namespace physics
 		points.insert(points.begin(), a);
 	}
 
+	DynamicCollider::~DynamicCollider() noexcept {}
+
 	bool DynamicCollider::operator==(const Collider& other) const noexcept
 	{
 		DynamicCollider tmp;
